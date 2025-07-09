@@ -31,6 +31,7 @@ download_dados_cs <- function(link_download) {
   tipo <- str_extract(link_download, "EXP|IMP") %>% str_to_lower()
   ano_link <- str_extract(link_download, "[0-9]{4}")
   dir_file_download <- file.path("temp", "temp.csv")
+  sleep <- 5 # tempo para tentar download novamente
   
   sucesso_download <- FALSE
   
@@ -42,7 +43,7 @@ download_dados_cs <- function(link_download) {
     },
     error = function(e) {
       message(glue::glue("Tentativa {tentativa} falhou: {e$message}"))
-      if (tentativa < 3) Sys.sleep(5)
+      if (tentativa < 3) Sys.sleep(sleep)
     })
   }
   
@@ -74,6 +75,8 @@ download_dados_cs <- function(link_download) {
       relocate(no_pais, .before = co_ncm) %>%
       arrange(co_mes)
     
+    x <- arrow_table(x)$cast(schema_comexstat_imp)
+    
   } else if (tipo == "exp") {
     path <- diretorio_exp
     
@@ -91,6 +94,8 @@ download_dados_cs <- function(link_download) {
       select(-co_pais) %>%
       relocate(no_pais, .before = co_ncm) %>%
       arrange(co_mes)
+    
+    x <- arrow_table(x)$cast(schema_comexstat_exp)
   }
   
   write_dataset(x, path, partitioning = "co_ano")
@@ -125,11 +130,12 @@ download_dados_cs_onedrive <- function(link_download) {
     tryCatch({
       download.file(url = link_download, destfile = dir_file_download, mode = "wb")
       sucesso_download <- TRUE
+      sleep <- 5 # tempo para tentar download novamente
       break
     },
     error = function(e) {
       message(glue::glue("Tentativa {tentativa} falhou: {e$message}"))
-      if (tentativa < 3) Sys.sleep(5)
+      if (tentativa < 3) Sys.sleep(sleep)
     })
   }
   
@@ -161,6 +167,8 @@ download_dados_cs_onedrive <- function(link_download) {
       relocate(no_pais, .before = co_ncm) %>%
       arrange(co_mes)
     
+    x <- arrow_table(x)$cast(schema_comexstat_imp)
+    
   } else if (tipo == "exp") {
     path <- Sys.getenv("export")
     
@@ -178,6 +186,8 @@ download_dados_cs_onedrive <- function(link_download) {
       select(-co_pais) %>%
       relocate(no_pais, .before = co_ncm) %>%
       arrange(co_mes)
+    
+    x <- arrow_table(x)$cast(schema_comexstat_exp)
   }
   
   write_dataset(x, path, partitioning = "co_ano")
