@@ -73,7 +73,7 @@ Isso irá gerar a base no OneDrive.
 ## Lendo os dados da base
 
 Após a escrita dos dados, para acessar a base você pode usar as principais funções do `dplyr` normalmente,
-seguidas de `collect.
+seguidas de `collect`.
 
 ```
 library(arrow)
