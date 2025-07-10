@@ -35,7 +35,7 @@ Caso deseje obter dados anteriores a 2015, basta alterar o objeto `ano_inicial` 
 
 Esta solução pode fazer mais sentido se você trabalha com uma equipe e centraliza os dados no OneDrive. Primeiramente é preciso entrar no OneDrive da sua equipe via browser. Após acessar o OneDrive corporativo via browser, encontre o drive da sua equipe e, em seguida, procure a pasta **Documentos** e selecione um diretório dentro dessa pasta para alocar os dados do Comex Stat. Por exemplo, você pode criar um diretório com o nome **Documentos/General/Bases/comexstat**.
 
-Na pasta comexstat ou a que você tiver escolhido, crie mais duas pastas. Uma chamada **export** e outra chamada **import**.
+Na pasta comexstat ou a que você tiver escolhido, crie mais duas pastas. Uma chamada **export** e outra chamada **import** - essas subpastas devem ter esses nomes necessariamente.
 
 Caso a pasta do OneDrive da sua equipe não esteja sincronizada no seu computador, será necessário fazer uma sincronização. Cada um dos membros da equipe deverá fazer isso se quiser acessar os dados da base do Comex Stat no OneDrive via R. No browser, navegue até a pasta que você deseja sincronizar. Se fizer sentido para você, pode sincronizar a pasta **General** ou equivalente. Caso só faça sentido sincronizar a pasta **Bases** ou alguma outra, navegue via browser até ela. Todas as subpastas dentro da pasta selecionada e seus arquivos serão sincronizadas no seu computador, a menos que você exclua alguma pasta da sincronização.
 
