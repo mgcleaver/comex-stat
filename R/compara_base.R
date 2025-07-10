@@ -16,8 +16,6 @@ compara_base_local <- function(tipo = c("export", "import")) {
   if (temp_date_api == temp_date_local) {
     stop(glue::glue("Execução interrompida: base do Comex Stat local já está atualizada."))
   }
-  
-  cat(glue::glue("Base local do Comex Stat desatualizada. Atualizando...\n"))
 }
 
 #' Verifica se a base onedrive está atualizada em relação ao Comex Stat
@@ -33,13 +31,11 @@ compara_base_local <- function(tipo = c("export", "import")) {
 compara_base_onedrive <- function(tipo) {
   
   temp_date_api <- get_last_update()
-  temp_date_local <- ultimo_dado_onedrive(tipo = tipo)
+  temp_date_local <- ultimo_dado_onedrive(diretorio = tipo)
   
   if (temp_date_api == temp_date_local) {
     stop(glue::glue("Execução interrompida: base do Comex Stat local já está atualizada."))
   }
-  
-  cat(glue::glue("Base do Comex Stat no OneDrive desatualizada. Atualizando...\n"))
 }
 
 #' Obtém a data mais recente disponível na API do Comex Stat
