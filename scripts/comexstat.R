@@ -280,9 +280,7 @@ paises <- fread(
   as_tibble() %>%
   select(co_pais, no_pais)
 
-# aplicar função get_comexstat para vetor links_download
-# a função get_comexstat é utilizada para para baixar, limpar, organizar e 
-# escrever dados com extensão .parquet
+# aplicar função download_dados_cs para vetor links_download
 links_download %>%
   walk(~ download_dados_cs(.x))
 
