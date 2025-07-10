@@ -123,6 +123,7 @@ download_dados_cs_onedrive <- function(link_download) {
   tipo <- str_extract(link_download, "EXP|IMP") %>% str_to_lower()
   ano_link <- str_extract(link_download, "[0-9]{4}")
   dir_file_download <- file.path("temp", "temp.csv")
+  sleep <- 5 # tempo para tentar download novamente
   
   sucesso_download <- FALSE
   
@@ -130,7 +131,6 @@ download_dados_cs_onedrive <- function(link_download) {
     tryCatch({
       download.file(url = link_download, destfile = dir_file_download, mode = "wb")
       sucesso_download <- TRUE
-      sleep <- 5 # tempo para tentar download novamente
       break
     },
     error = function(e) {
