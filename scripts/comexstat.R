@@ -193,19 +193,13 @@ if(!file.exists(diretorio)) {
 
 if(!primeira_execucao) {
   # Testa se a base local se encontra atualizada com os dados
-  # mais atualizados do comex stat. Caso a base local já esteja atualizada, a 
-  # função abaixo irá lançar um erro, interrompendo a execução do script. O
-  # resto do script só ira rodar se a base não estiver atualizada.
-  teste_base_export <- try(
-    compara_base_local(tipo = "export"),
-    silent = TRUE
-    )
-  teste_base_import <- try(
-    compara_base_local(tipo = "import"),
-    silent = TRUE
-    )
+  # mais atualizados do comex stat. Caso a base local já esteja atualizada, o
+  # script será interrompido.
+  # O resto do script só rodará se a base não estiver atualizada.
+  teste_base_export <- compara_base_local(tipo = "export")
+  teste_base_import <- compara_base_local(tipo = "import")
   
-  if(inherits(teste_base_export, "try-error") && inherits(teste_base_import, "try-error")) {
+  if(teste_base_export && teste_base_import) {
     # se a condição for verdadeira, a base está atualizada
     stop("Bases atualizadas")
   }

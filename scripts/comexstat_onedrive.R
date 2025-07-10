@@ -182,19 +182,13 @@ if(nrow(teste_import) == 0) {
 
 if(!primeira_execucao) {
   # primeiro deve-se testar se a base do onedrive se encontra atualizada com os dados
-  # mais atualizados do comex stat. Caso a base do onedrive já esteja atualizada a 
-  # funcao abaixo ira lancar um erro, interrompendo a execucao do script. O
-  # resto do script so ira rodar se a base nao estiver atualizada.
-  teste_base_export <- try(
-    compara_base_onedrive(tipo = var_ambiente_export),
-    silent = TRUE)
+  # mais atualizados do comex stat. Caso a base do onedrive já esteja atualizada,
+  # o script será interrompido.
+  # O resto do script só rodará se a base não estiver atualizada.
+  teste_base_export <- compara_base_onedrive(tipo = var_ambiente_export)
+  teste_base_import <- compara_base_onedrive(tipo = var_ambiente_import)
   
-  teste_base_import <- try(
-    compara_base_onedrive(tipo = var_ambiente_import),
-    silent = TRUE)
-  
-  
-  if(inherits(teste_base_export, "try-error") && inherits(teste_base_import, "try-error")) {
+  if(teste_base_export && teste_base_import) {
     # se a condição for verdadeira, a base está atualizada
     stop("Bases atualizadas")
   }

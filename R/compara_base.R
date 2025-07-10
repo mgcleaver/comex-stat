@@ -2,11 +2,11 @@
 #'
 #' Compara a data do último dado disponível na API pública do Comex Stat com
 #' a data mais recente presente na base local (armazenada na pasta `database`).
-#' Se os dados estiverem atualizados, a execução é interrompida com uma mensagem.
 #'
 #' @param tipo Character. Tipo de dado a ser verificado: `"export"` ou `"import"`.
 #'
-#' @return Nenhum valor é retornado. Interrompe a execução com `stop()` se a base estiver atualizada.
+#' @return Logical. Retorna `TRUE` se a base local estiver atualizada em relação
+#' à API e `FALSE` caso contrário.
 compara_base_local <- function(tipo = c("export", "import")) {
   tipo <- match.arg(tipo)
   
@@ -14,28 +14,30 @@ compara_base_local <- function(tipo = c("export", "import")) {
   temp_date_local <- ultimo_dado(tipo = tipo)
   
   if (temp_date_api == temp_date_local) {
-    stop(glue::glue("Execução interrompida: base do Comex Stat local já está atualizada."))
+    return(TRUE)
   }
+  return(FALSE)
 }
 
 #' Verifica se a base onedrive está atualizada em relação ao Comex Stat
 #'
 #' Compara a data do último dado disponível na API pública do Comex Stat com
 #' a data mais recente presente na base base OneDrive.
-#' Se os dados estiverem atualizados, a execução é interrompida com uma mensagem.
 #'
 #' @param tipo Character. Deve ser o caminho para a pasta de exportação ou de
 #'  importação do OneDrive configurado no computador do usuário.
 #'
-#' @return Nenhum valor é retornado. Interrompe a execução com `stop()` se a base estiver atualizada.
+#' @return Logical. Retorna `TRUE` se a base local estiver atualizada em relação
+#' à API e `FALSE` caso contrário.
 compara_base_onedrive <- function(tipo) {
   
   temp_date_api <- get_last_update()
   temp_date_local <- ultimo_dado_onedrive(diretorio = tipo)
   
   if (temp_date_api == temp_date_local) {
-    stop(glue::glue("Execução interrompida: base do Comex Stat local já está atualizada."))
+    return(TRUE)
   }
+  return(FALSE)
 }
 
 #' Obtém a data mais recente disponível na API do Comex Stat
