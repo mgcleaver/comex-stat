@@ -205,7 +205,7 @@ if(!primeira_execucao) {
     silent = TRUE
     )
   
-  if(class(teste_base_import) == "try-error" && class(teste_base_export) == "try-error") {
+  if(inherits(teste_base_export, "try-error") && inherits(teste_base_import, "try-error")) {
     # se a condição for verdadeira, a base está atualizada
     stop("Bases atualizadas")
   }
