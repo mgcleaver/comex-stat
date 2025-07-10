@@ -199,6 +199,8 @@ if(!primeira_execucao) {
     stop("Bases atualizadas")
   }
   
+  cat(glue::glue("Base do Comex Stat no OneDrive desatualizada. Atualizando...\n"))
+  
   # se a condição acima não for verdadeira, uma ou as duas bases não estão 
   # atualizadas. Dessa forma prosseguimos com atualização.
   
