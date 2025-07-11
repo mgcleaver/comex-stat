@@ -17,7 +17,7 @@ Para facilitar as consultas, optou-se por trazer na base o nome do país, em vez
 
 ## Objetivo
 
-O objetivo do respositório consiste em montar a base do Comex Stat, com dados selecionados, para que esta possa ser acessada de forma programática por meio do R. A proposta é facilitar e agilizar o trabalho de quem lida com dados de comércio exterior, promovendo maior produtividade e automação nas análises.
+O objetivo do repositório consiste em montar a base do Comex Stat, com dados selecionados, para que esta possa ser acessada de forma programática por meio do R. A proposta é facilitar e agilizar o trabalho de quem lida com dados de comércio exterior, promovendo maior produtividade e automação nas análises.
 
 ## Criação da base do Comex Stat na pasta database (local)
 
@@ -45,7 +45,7 @@ Uma vez que você esteja visualizando no browser as pastas e arquivos da pasta q
 
 Isso iniciará a configuração da pasta no seu Explorador de Arquivos.
 
-Agora abra o arquivo **.Renviron** para configurações gerais do seu R. Para ver qual é esse diretório, digite `path.expand("~")` no console do R e navegue até a pasta resultante. Caso não tenha o arquivo .Renviron nesse diretório, crie-o e deixe-o aberto no editor de código. Para criar digite no console do Rstudio: `file.edit("~/.Renviron")`.
+Agora abra o arquivo **.Renviron** geral do seu R. Para ver qual é o diretório onde esse arquivo tem que estar, digite `path.expand("~")` no console do R e navegue até a pasta resultante. Caso não exista o arquivo .Renviron nesse diretório, crie-o e deixe-o aberto no editor de código. Para criar o arquivo digite no console do Rstudio: `file.edit("~/.Renviron")`.
 
 Abra o Explorador de Arquivos e verifique se você encontra, na barra lateral esquerda de acesso às pastas, a pasta raiz do OneDrive empresarial. Assim que encontrar, abra o OneDrive empresarial a partir do Explorador de Arquivos e navegue até a pasta **export**. Clique na barra de endereço do Explorador de Arquivos e copie o diretório completo que ali consta. O diretório deve ser parecido com:
 
@@ -76,13 +76,13 @@ source("scripts/comexstat_onedrive.R", encoding = "UTF-8")
 
 A base do Comex Stat é atualizada mensalmente nos primeiros dias de cada mês.
 
-O método de atualização dos dados varia de acordo com a solução de criação da base do Comex Stat adotada. Se a solução foi local (escrita de dados em database), basta rodar o script **scripts/comexstat.R**. No caso de haver uma diferença entre a base oficial e a base local, os dados locais serão atualizados para que fiquem iguais aos dados da base oficial. Caso os dados locais sejam iguais aos da base oficial, o script será interrompido, não alterando a base.
+O método de atualização dos dados varia de acordo com a solução de criação da base do Comex Stat adotada. Se a solução foi local (escrita de dados em database), basta rodar o script **scripts/comexstat.R**. No caso de haver uma diferença entre a base oficial e a base local, os dados locais serão atualizados para que fiquem iguais aos dados da base oficial. Caso os dados locais sejam iguais aos da base oficial, o script será interrompido, deixando a base intacta.
 
 De forma semelhante, para atualizar os dados do OneDrive, rode **scripts/comexstat_onedrive.R**. O comportamento é muito parecido com o que ocorre na atualização de dados locais.
 
 ## Lendo os dados da base
 
-Após a escrita dos dados, para acessar a base você pode usar as principais funções do `dplyr` normalmente, seguidas de `collect`.
+Após a escrita dos dados, para acessar a base você pode usar as principais funções do `dplyr` normalmente, além de funções do `arrow` como `open_dataset` e `collect`.
 
 ```         
 library(arrow)
@@ -90,6 +90,13 @@ library(dplyr)
 
 # para ler os dados da base de exportação local
 dados_exp <- open_dataset("dataset/export") %>% 
+  group_by(co_ano) %>% 
+  summarise(vl_fob = sum(vl_fob)) %>% 
+  ungroup() %>% 
+  collect()
+  
+# para ler os dados da base de importação local
+dados_imp <- open_dataset("dataset/import") %>% 
   group_by(co_ano) %>% 
   summarise(vl_fob = sum(vl_fob)) %>% 
   ungroup() %>% 
