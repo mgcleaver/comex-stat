@@ -10,6 +10,7 @@ library(janitor)
 library(purrr)
 source("R/compara_base.R", encoding = "UTF-8")
 source("R/download_dados_cs.R", encoding = "UTF-8")
+source("R/download_tabela_aux.R", encoding = "UTF-8")
 
 # Configuração inicial ----------------------------------------------------
 
@@ -65,6 +66,7 @@ if(!file.exists(temp)) {
 schema_comexstat_exp <- schema(
   co_ano = int32(),
   co_mes = int32(),
+  no_uf = utf8(),
   no_pais = utf8(),
   co_ncm = utf8(),
   vl_fob = int64(),
@@ -76,6 +78,7 @@ schema_comexstat_exp <- schema(
 schema_comexstat_imp <- schema(
   co_ano = int32(),
   co_mes = int32(),
+  no_uf = utf8(),
   no_pais = utf8(),
   co_ncm = utf8(),
   vl_fob = int64(),
@@ -99,7 +102,7 @@ if(!file.exists(diretorio)) {
     diretorio_imp,
     recursive = TRUE
   )
-  cat("Subpastas exp e imp criadas com sucesso na pasta database\n")
+  cat("Subpastas export e import criadas com sucesso na pasta database\n")
   
   # Definir quais anos serão baixados na base
   anos_para_baixar <- paste0(serie_cstat_desejada, collapse = "|")
@@ -247,34 +250,35 @@ link_download_paises <- page %>%
   html_attr("href") %>%
   str_subset("PAIS.csv")
 
-# Define local do diretório temporário para download de arquivos
-dir_temp_pais <- file.path(temp, "pais.csv")
+# obter link de correlação para UF
+link_download_uf <-  page %>%
+  html_elements("table tr td a") %>%
+  html_attr("href") %>%
+  str_subset("UF.csv")
 
-# baixar correlação pais - caso download falhe, pode rodar manualmente
-# as linhas de baixo para completar a organização da base.
-download_pais <- tryCatch({
-  download.file(
-    url = link_download_paises,
-    destfile = dir_temp_pais,
-    mode = "wb"
-  )
-  if (!file.exists(dir_temp_pais) || file.info(dir_temp_pais)$size == 0) {
-    stop("Download falhou ou arquivo vazio.")
-  }
-  TRUE
-}, error = function(e) {
-  message("Erro ao baixar o arquivo: ", e$message)
-  FALSE
-})
+# Define local do diretório temporário de arquivos
+dir_temp_pais <- file.path(temp, "pais.csv")
+dir_temp_uf <- file.path(temp, "uf.csv")
+
+# baixar correlação pais
+download_tabela_aux(
+  link_download_paises,
+  dir_temp_pais
+)
+
+# baixar correlação uf
+download_tabela_aux(
+  link_download_uf,
+  dir_temp_uf
+)
 
 # abrir/trazer dados de país para o R
-paises <- fread(
-  dir_temp_pais,
-  encoding = "Latin-1"
-) %>%
-  clean_names() %>%
-  as_tibble() %>%
+paises <- ler_tabela_aux(dir_temp_pais) %>% 
   select(co_pais, no_pais)
+
+# abrir/trazer dados de uf para o R
+uf <- ler_tabela_aux(dir_temp_uf) %>% 
+  select(sg_uf_ncm = sg_uf, no_uf)
 
 # aplicar função download_dados_cs para vetor links_download
 links_download %>%
@@ -282,8 +286,5 @@ links_download %>%
 
 # apagar arquivos baixados
 file.remove(file.path(temp, "temp.csv"))
-
-# apaga arquivo de correlação de código e nome de país
-# obs. o arquivo de correlação é apagado e baixado em toda atualização da base,
-# pois eventualmente pode haver atualização da lista de países
 file.remove(dir_temp_pais)
+file.remove(dir_temp_uf)
