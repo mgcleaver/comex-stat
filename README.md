@@ -2,10 +2,11 @@
 
 ## Visão geral
 
-Este repositório automatiza o download de dados brutos da base Comex Stat e organiza os dados em uma base no diretório **database** deste projeto ou, alternativamente, em um diretório do OneDrive. Apenas algumas variáveis da base do Comex Stat são selecionadas para montar a base: ano, mês, código NCM, país, valores em dólares FOB (para importações também temos valores em dólares CIF), peso em quilogramas líquidos e quantidade estatística. Os nomes das colunas da base são os seguintes:
+Este repositório automatiza o download de dados brutos da base Comex Stat e organiza os dados em uma base no diretório **database** deste projeto ou, alternativamente, em um diretório do OneDrive. Apenas algumas variáveis da base do Comex Stat são selecionadas para montar a base: ano, mês, unidade da federação, código NCM, país, valores em dólares FOB (para importações também temos valores em dólares CIF), peso em quilogramas líquidos e quantidade estatística. Os nomes das colunas da base são os seguintes:
 
 -   co_ano (ano)
 -   co_mes (mês)
+-   no_uf (nome da unidade da federação)
 -   co_ncm (código NCM)
 -   no_pais (nome do país)
 -   vl_fob (valor em dólares fob)
@@ -29,7 +30,7 @@ Para gerar a base a partir do ano de 2015, execute no console do R:
 source("scripts/comexstat.R", encoding = "UTF-8")
 ```
 
-Caso deseje obter dados anteriores a 2015, basta alterar o objeto `ano_inicial` do arquivo **scripts/comexstat.R** para o ano desejado. Note que o ano de 1997 é primeiro ano disponível com dados em NCM.
+Caso deseje obter dados anteriores ou posteriores a 2015, basta alterar o objeto `ano_inicial` do arquivo **scripts/comexstat.R** para o ano desejado. Note que o ano de 1997 é primeiro ano disponível com dados em NCM.
 
 ## Criação da base do Comex Stat no OneDrive - Windows
 
