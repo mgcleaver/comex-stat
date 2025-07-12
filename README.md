@@ -46,9 +46,9 @@ Uma vez que você esteja visualizando no browser as pastas e arquivos da pasta q
 
 Isso iniciará a configuração da pasta no seu Explorador de Arquivos.
 
-Agora abra o arquivo **.Renviron** geral do seu R. Para ver qual é o diretório onde esse arquivo tem que estar, digite `path.expand("~")` no console do R e navegue até a pasta resultante. Caso não exista o arquivo .Renviron nesse diretório, crie-o e deixe-o aberto no editor de código. Para criar o arquivo digite no console do Rstudio: `file.edit("~/.Renviron")`.
+Abra o arquivo **.Renviron** geral do seu R. Para ver qual é o diretório do arquivo, digite `path.expand("~")` no console do R e navegue até a pasta resultante. Caso não exista o arquivo .Renviron nesse diretório, crie-o e deixe-o aberto no editor de código. Para criar o arquivo digite no console do Rstudio: `file.edit("~/.Renviron")`.
 
-Abra o Explorador de Arquivos e verifique se você encontra, na barra lateral esquerda de acesso às pastas, a pasta raiz do OneDrive empresarial. Assim que encontrar, abra o OneDrive empresarial a partir do Explorador de Arquivos e navegue até a pasta **export**. Clique na barra de endereço do Explorador de Arquivos e copie o diretório completo que ali consta. O diretório deve ser parecido com:
+Na sequência, abra o Explorador de Arquivos e verifique se você encontra, na barra lateral esquerda de acesso às pastas, a pasta raiz do OneDrive empresarial. Assim que encontrar, abra o OneDrive empresarial a partir do Explorador de Arquivos e navegue até a pasta **export**. Clique na barra de endereço do Explorador de Arquivos e copie o diretório completo que ali consta. O diretório deve ser parecido com:
 
 `C:\caminho\para\sua\pasta\onedrive\Bases\comexstat\export`
 
@@ -58,7 +58,7 @@ No seu arquivo **.Renviron,** aberto no editor de código, cole a informação c
 export=C:/caminho/para/sua/pasta/onedrive/Bases/comexstat/export
 ```
 
-Agora faça a mesma coisa com a pasta import. Seu arquivo **.Renviron** deve conter as seguintes linhas (ou os dirétorios definidos para cada base):
+Faça a mesma coisa com a pasta import. Seu arquivo **.Renviron** deve conter as seguintes linhas (a depender do que foi escolhido com diretório, as definições abaixo podem ter outro padrão):
 
 ```         
 export=C:/caminho/para/sua/pasta/onedrive/Bases/comexstat/export
@@ -67,7 +67,7 @@ import=C:/caminho/para/sua/pasta/onedrive/Bases/comexstat/import
 
 Salve o arquivo **.Renviron** e reinicie sua sessão do R. Para verificar que a configuração de variáveis de ambiente deu certo, no console do R, digite `Sys.getenv("export")` e observe se aparece o caminho definido na variável no output. Da mesma forma, teste `Sys.getenv("import")` e observe se aparece o caminho definido. No caso de aparecer um "", alguma coisa não funcionou corretamente na configuração.
 
-Caso o seu arquivo .Renviron e o seu OneDrive corporativo tenham sido configurados corretamente, execute no console do R para gerar a base no OneDrive:
+Caso o seu arquivo .Renviron e o seu OneDrive corporativo tenham sido configurados corretamente, execute no console do R para gerar a base no OneDrive a partir do ano de 2015 (é possível alterar o ano de ínicio assim como no caso da base local):
 
 ```         
 source("scripts/comexstat_onedrive.R", encoding = "UTF-8")
