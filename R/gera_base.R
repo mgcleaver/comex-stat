@@ -269,9 +269,6 @@ atualiza_base <- function(
   
   cat(glue::glue("Base local do Comex Stat desatualizada. Atualizando...\n"))
   
-  # se a condição acima não for verdadeira, uma ou as duas bases não estão 
-  # atualizadas. Dessa forma prosseguimos com atualização.
-  
   # ano_update_base_oficial é o ano da última atulização dos dados no site do comex stat
   ano_update_base_oficial <- stringr::str_sub(get_last_update(), 1, 4)
   
