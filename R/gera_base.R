@@ -1,0 +1,339 @@
+achar_link_tabela_aux <- function(page, nome){
+
+  page %>%
+    rvest::html_elements("table tr td a") %>%
+    rvest::html_attr("href") %>%
+    stringr::str_subset(glue::glue("{nome}.csv"))
+}
+
+cria_esquema <- function(tipo = c("export", "import")) {
+  tipo <- match.arg(tipo)
+  
+  if(tipo == "export") {
+    # Cria "schema" para base de dados de exportação
+    arrow::schema(
+      co_ano = int32(),
+      co_mes = int32(),
+      no_uf = utf8(),
+      no_pais = utf8(),
+      co_ncm = utf8(),
+      vl_fob = int64(),
+      kg_liquido = int64(),
+      qt_estat = int64()
+    )
+  }
+  
+  if(tipo == "import") {
+    # Cria "schema" para base de dados de importação
+    arrow::schema(
+      co_ano = int32(),
+      co_mes = int32(),
+      no_uf = utf8(),
+      no_pais = utf8(),
+      co_ncm = utf8(),
+      vl_fob = int64(),
+      vl_cif = int64(), # exportações não tem esse dado
+      kg_liquido = int64(),
+      qt_estat = int64()
+    )
+  }
+}
+
+gera_base <- function(
+    dest_dir, # diretório onde a base será criada
+    ano_inicial, # ano inicial da base
+    timeout = 2000 # tempo necessário para download
+) {
+  
+  # Link da página do Comex Stat para baixar dados brutos
+  link_cs <-
+    "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
+  
+  # Definir tempo limite para download. É necessário definir um tempo maior, uma
+  # vez que é possível que o download demore mais do que o esperado. Alterar caso
+  # seja necessário um tempo maior.
+  options(timeout = timeout)
+  
+  # cria intervalo de anos a serem excluídos da base local
+  intervalo_para_exclusao <- 1997:(ano_inicial - 1)
+  
+  # obter data corrente
+  data_corrente <- Sys.Date()
+  
+  # obtém ano corrente e passa para classe numérica. Isso é necessário
+  # para poder subtrair do ano
+  ano_corrente <- str_sub(data_corrente, 1, 4) %>% 
+    as.numeric()
+  
+  # obter vetor dos anos da série do comex stat
+  serie_cstat <- 1997:ano_corrente # 1997 é o início da serie no comex stat
+  
+  # obter anos para série do comex stat local
+  serie_cstat_desejada <- setdiff(serie_cstat, intervalo_para_exclusao)
+  
+  # Diretórios para base 
+  diretorio_exp <- file.path(dest_dir, "export")
+  diretorio_imp <- file.path(dest_dir, "import")
+  
+  # Diretório para pasta temporária
+  temp <- "temp"
+  
+  # Cria pasta temp, caso não exista
+  if(!file.exists(temp)) {
+    
+    dir.create(temp, recursive = TRUE)
+    cat("Pasta temp criada com sucesso\n")
+    
+  }
+  
+  # cria esquemas
+  schema_comexstat_exp <- cria_esquema(tipo == "export")
+  schema_comexstat_imp <- cria_esquema(tipo == "import")
+  
+  # cria subpasta para dados de exportação
+  dir.create(
+    diretorio_exp,
+    recursive = TRUE
+  )
+  
+  # cria subpasta para dados de exportação
+  dir.create(
+    diretorio_imp,
+    recursive = TRUE
+  )
+  cat("Subpastas export e import criadas com sucesso na pasta database\n")
+  
+  anos_para_baixar <- paste0(serie_cstat_desejada, collapse = "|")
+  
+  # obter dados html de link_cs
+  page <- rvest::read_html(link_cs)
+  
+  # obter links relevantes para download dos dados ano a ano
+  links_download <- page %>%
+    rvest::html_elements("table tr td a") %>%
+    rvest::html_attr("href") %>%
+    stringr::str_subset("/ncm/") %>%
+    stringr::str_subset("COMPLETA|CONFERENCIA", negate = TRUE) %>%
+    stringr::str_subset(anos_para_baixar)
+  
+  link_download_paises <- achar_link_tabela_aux(page, "PAIS")
+  link_download_uf <- achar_link_tabela_aux(page, "UF")
+  
+  # Define local do diretório temporário de arquivos
+  dir_temp_pais <- file.path(temp, "pais.csv")
+  dir_temp_uf <- file.path(temp, "uf.csv")
+  
+  # baixar correlação pais
+  download_tabela_aux(
+    link_download_paises,
+    dir_temp_pais
+  )
+  
+  # baixar correlação uf
+  download_tabela_aux(
+    link_download_uf,
+    dir_temp_uf
+  )
+  
+  # abrir/trazer dados de país para o R
+  paises <- ler_tabela_aux(dir_temp_pais) %>% 
+    dplyr::select(co_pais, no_pais)
+  
+  # abrir/trazer dados de uf para o R
+  uf <- ler_tabela_aux(dir_temp_uf) %>% 
+    dplyr::select(sg_uf_ncm = sg_uf, no_uf)
+  
+  # aplicar função download_dados_cs para vetor links_download
+  links_download %>%
+    purrr::walk(~ download_dados_cs(.x))
+  
+  # apagar arquivos baixados
+  file.remove(file.path(temp, "temp.csv"))
+  file.remove(dir_temp_pais)
+  file.remove(dir_temp_uf)
+  
+}
+
+
+atualiza_base <- function(
+    dest_dir, # diretório onde a base será criada
+    ano_inicial, # ano inicial da base
+    timeout = 2000 # tempo necessário para download
+) {
+  # Link da página do Comex Stat para baixar dados brutos
+  link_cs <-
+    "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
+  
+  # Definir tempo limite para download. É necessário definir um tempo maior, uma
+  # vez que é possível que o download demore mais do que o esperado. Alterar caso
+  # seja necessário um tempo maior.
+  options(timeout = timeout)
+  
+  # cria intervalo de anos a serem excluídos da base local
+  intervalo_para_exclusao <- 1997:(ano_inicial - 1)
+  
+  # obter data corrente
+  data_corrente <- Sys.Date()
+  
+  # obtém ano corrente e passa para classe numérica. Isso é necessário
+  # para poder subtrair do ano
+  ano_corrente <- str_sub(data_corrente, 1, 4) %>% 
+    as.numeric()
+  
+  # obter vetor dos anos da série do comex stat
+  serie_cstat <- 1997:ano_corrente # 1997 é o início da serie no comex stat
+  
+  # obter anos para série do comex stat local
+  serie_cstat_desejada <- setdiff(serie_cstat, intervalo_para_exclusao)
+  
+  # Diretórios para base 
+  diretorio_exp <- file.path(dest_dir, "export")
+  diretorio_imp <- file.path(dest_dir, "import")
+  
+  # Diretório para pasta temporária
+  temp <- "temp"
+  
+  # Cria pasta temp, caso não exista
+  if(!file.exists(temp)) {
+    
+    dir.create(temp, recursive = TRUE)
+    cat("Pasta temp criada com sucesso\n")
+    
+  }
+  
+  # cria esquemas
+  schema_comexstat_exp <- cria_esquema(tipo == "export")
+  schema_comexstat_imp <- cria_esquema(tipo == "import")
+  
+  # obter anos disponíveis dos dados na pasta de exportações
+  anos_disponiveis_exp <- try(
+    arrow::open_dataset(diretorio_exp) %>% 
+      dplyr::select(co_ano) %>% 
+      dplyr::distinct() %>% 
+      dplyr::collect() %>% 
+      dplyr::pull(co_ano) %>% 
+      dplyr::sort(),
+    silent = TRUE
+  )
+  
+  anos_disponiveis_imp <- try(
+    arrow::open_dataset(diretorio_imp) %>% 
+      dplyr::select(co_ano) %>% 
+      dplyr::distinct() %>% 
+      dplyr::collect() %>% 
+      dplyr::pull(co_ano) %>% 
+      dplyr::sort(),
+    silent = TRUE)
+  
+  # caso haja alguma falha na primeira execução lançamos erro
+  if (
+    inherits(anos_disponiveis_exp, "try-error") ||
+    inherits(anos_disponiveis_imp, "try-error")
+  ) {
+    stop("A base foi gerada com erro. Não é possível atualizar.
+         Tente executar a função gera_base\n")
+  }
+  
+  # selecionar anos que nao precisam ser baixados, desde que estejam presentes
+  # tanto em exportações como em importações
+  excluir_anos_download <- intersect(anos_disponiveis_exp, anos_disponiveis_imp)
+  
+  # obter período dos últimos dados disponíveis na base local
+  atualizacao_local_imp <- arrow::open_dataset(diretorio_imp) %>% 
+    dplyr::select(co_ano, co_mes) %>% 
+    dplyr::distinct() %>% 
+    dplyr::collect() %>% 
+    dplyr::filter(max(co_ano) == co_ano) %>% 
+    dplyr::filter(max(co_mes) == co_mes) %>% 
+    dplyr::mutate(co_mes = str_pad(co_mes, width = 2, side = 'left', pad = '0')) %>% 
+    tidyr::unite(col = "atualizacao", co_ano, co_mes, sep = "-") %>% 
+    dplyr::pull(atualizacao)
+  
+  atualizacao_local_exp <- arrow::open_dataset(diretorio_exp) %>% 
+    dplyr::select(co_ano, co_mes) %>% 
+    dplyr::distinct() %>% 
+    dplyr::collect() %>% 
+    dplyr::filter(max(co_ano) == co_ano) %>% 
+    dplyr::filter(max(co_mes) == co_mes) %>% 
+    dplyr::mutate(co_mes = str_pad(co_mes, width = 2, side = 'left', pad = '0')) %>% 
+    tidyr::unite(col = "atualizacao", co_ano, co_mes, sep = "-") %>% 
+    dplyr::pull(atualizacao)
+  
+  teste_base_export <- compara_base_local(tipo = "export")
+  teste_base_import <- compara_base_local(tipo = "import")
+  
+  if(teste_base_export && teste_base_import) {
+    # se a condição for verdadeira, a base está atualizada
+    stop("Bases atualizadas")
+  }
+  
+  cat(glue::glue("Base local do Comex Stat desatualizada. Atualizando...\n"))
+  
+  # se a condição acima não for verdadeira, uma ou as duas bases não estão 
+  # atualizadas. Dessa forma prosseguimos com atualização.
+  
+  # ano_update_base_oficial é o ano da última atulização dos dados no site do comex stat
+  ano_update_base_oficial <- stringr::str_sub(get_last_update(), 1, 4)
+  
+  # ano_update_base_local é o último ano de atualização da base do comex stat
+  # na pasta database
+  ano_update_base_local <- stringr::str_sub(atualizacao_local_imp, 1, 4)
+  
+  # Além dos anos já definidos para exlcusão anteriormente, remover ano corrente
+  # e ano imediatamente anterior da lista de exclusão
+  excluir_anos_download <- 
+    excluir_anos_download[!excluir_anos_download %in% ano_update_base_local:ano_update_base_oficial]
+  
+  # Selecionar anos que serão atualizados/baixados nas base
+  anos_para_baixar <- setdiff(serie_cstat_desejada, excluir_anos_download)
+  
+  # cria regex para selecão de links
+  anos_para_baixar <- paste0(anos_para_baixar, collapse = "|")
+  
+  # obter dados html de link_cs
+  page <- rvest::read_html(link_cs)
+  
+  # obter links relevantes para download dos dados ano a ano
+  links_download <- page %>%
+    rvest::html_elements("table tr td a") %>%
+    rvest::html_attr("href") %>%
+    stringr::str_subset("/ncm/") %>%
+    stringr::str_subset("COMPLETA|CONFERENCIA", negate = TRUE) %>%
+    stringr::str_subset(anos_para_baixar)
+  
+  link_download_paises <- achar_link_tabela_aux(page, "PAIS")
+  link_download_uf <- achar_link_tabela_aux(page, "UF")
+  
+  # Define local do diretório temporário de arquivos
+  dir_temp_pais <- file.path(temp, "pais.csv")
+  dir_temp_uf <- file.path(temp, "uf.csv")
+  
+  # baixar correlação pais
+  download_tabela_aux(
+    link_download_paises,
+    dir_temp_pais
+  )
+  
+  # baixar correlação uf
+  download_tabela_aux(
+    link_download_uf,
+    dir_temp_uf
+  )
+  
+  # abrir/trazer dados de país para o R
+  paises <- ler_tabela_aux(dir_temp_pais) %>% 
+    dplyr::select(co_pais, no_pais)
+  
+  # abrir/trazer dados de uf para o R
+  uf <- ler_tabela_aux(dir_temp_uf) %>% 
+    dplyr::select(sg_uf_ncm = sg_uf, no_uf)
+  
+  # aplicar função download_dados_cs para vetor links_download
+  links_download %>%
+    purrr::walk(~ download_dados_cs(.x))
+  
+  # apagar arquivos baixados
+  file.remove(file.path(temp, "temp.csv"))
+  file.remove(dir_temp_pais)
+  file.remove(dir_temp_uf)
+}
