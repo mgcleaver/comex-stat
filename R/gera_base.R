@@ -12,29 +12,29 @@ cria_esquema <- function(tipo = c("export", "import")) {
   if(tipo == "export") {
     # Cria "schema" para base de dados de exportação
     arrow::schema(
-      co_ano = int32(),
-      co_mes = int32(),
-      no_uf = utf8(),
-      no_pais = utf8(),
-      co_ncm = utf8(),
-      vl_fob = int64(),
-      kg_liquido = int64(),
-      qt_estat = int64()
+      co_ano = arrow::int32(),
+      co_mes = arrow::int32(),
+      no_uf = arrow::utf8(),
+      no_pais = arrow::utf8(),
+      co_ncm = arrow::utf8(),
+      vl_fob = arrow::int64(),
+      kg_liquido = arrow::int64(),
+      qt_estat = arrow::int64()
     )
   }
   
   if(tipo == "import") {
     # Cria "schema" para base de dados de importação
     arrow::schema(
-      co_ano = int32(),
-      co_mes = int32(),
-      no_uf = utf8(),
-      no_pais = utf8(),
-      co_ncm = utf8(),
-      vl_fob = int64(),
-      vl_cif = int64(), # exportações não tem esse dado
-      kg_liquido = int64(),
-      qt_estat = int64()
+      co_ano = arrow::int32(),
+      co_mes = arrow::int32(),
+      no_uf = arrow::utf8(),
+      no_pais = arrow::utf8(),
+      co_ncm = arrow::utf8(),
+      vl_fob = arrow::int64(),
+      vl_cif = arrow::int64(), # exportações não tem esse dado
+      kg_liquido = arrow::int64(),
+      qt_estat = arrow::int64()
     )
   }
 }
@@ -62,7 +62,7 @@ gera_base <- function(
   
   # obtém ano corrente e passa para classe numérica. Isso é necessário
   # para poder subtrair do ano
-  ano_corrente <- str_sub(data_corrente, 1, 4) %>% 
+  ano_corrente <- stringr::str_sub(data_corrente, 1, 4) %>% 
     as.numeric()
   
   # obter vetor dos anos da série do comex stat
@@ -87,8 +87,8 @@ gera_base <- function(
   }
   
   # cria esquemas
-  schema_comexstat_exp <- cria_esquema(tipo == "export")
-  schema_comexstat_imp <- cria_esquema(tipo == "import")
+  schema_comexstat_exp <- cria_esquema(tipo = "export")
+  schema_comexstat_imp <- cria_esquema(tipo = "import")
   
   # cria subpasta para dados de exportação
   dir.create(
@@ -177,7 +177,7 @@ atualiza_base <- function(
   
   # obtém ano corrente e passa para classe numérica. Isso é necessário
   # para poder subtrair do ano
-  ano_corrente <- str_sub(data_corrente, 1, 4) %>% 
+  ano_corrente <- stringr::str_sub(data_corrente, 1, 4) %>% 
     as.numeric()
   
   # obter vetor dos anos da série do comex stat
@@ -202,8 +202,8 @@ atualiza_base <- function(
   }
   
   # cria esquemas
-  schema_comexstat_exp <- cria_esquema(tipo == "export")
-  schema_comexstat_imp <- cria_esquema(tipo == "import")
+  schema_comexstat_exp <- cria_esquema(tipo = "export")
+  schema_comexstat_imp <- cria_esquema(tipo = "import")
   
   # obter anos disponíveis dos dados na pasta de exportações
   anos_disponiveis_exp <- try(

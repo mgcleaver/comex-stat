@@ -76,15 +76,15 @@ get_last_update <- function() {
 #' @return Uma string no formato `"yyyy-mm"` representando o dado mais recente da base local.
 ultimo_dado <- function(diretorio = "database", tipo) {
   file.path(diretorio, tipo) %>% 
-    open_dataset() %>%
-    select(co_ano, co_mes) %>%
-    distinct() %>%
-    collect() %>%
-    filter(co_ano == max(co_ano)) %>%
-    filter(co_mes == max(co_mes)) %>%
-    mutate(co_mes = stringr::str_pad(co_mes, 2, side = "left", pad = "0")) %>%
-    mutate(resultado = paste0(co_ano, "-", co_mes)) %>%
-    pull(resultado)
+    arrow::open_dataset() %>%
+    dplyr::select(co_ano, co_mes) %>%
+    dplyr::distinct() %>%
+    dplyr::collect() %>%
+    dplyr::filter(co_ano == max(co_ano)) %>%
+    dplyr::filter(co_mes == max(co_mes)) %>%
+    dplyr::mutate(co_mes = stringr::str_pad(co_mes, 2, side = "left", pad = "0")) %>%
+    dplyr::mutate(resultado = paste0(co_ano, "-", co_mes)) %>%
+    dplyr::pull(resultado)
 }
 
 #' Retorna o ano-mês mais recente disponível da base do onedrive
@@ -98,14 +98,14 @@ ultimo_dado <- function(diretorio = "database", tipo) {
 #' @return Uma string no formato `"yyyy-mm"` representando o dado mais recente 
 #' na respectiva base.
 ultimo_dado_onedrive <- function(diretorio) {
-  open_dataset(diretorio) %>%
-    select(co_ano, co_mes) %>%
-    distinct() %>%
-    collect() %>%
-    filter(co_ano == max(co_ano)) %>%
-    filter(co_mes == max(co_mes)) %>%
-    mutate(co_mes = stringr::str_pad(co_mes, 2, side = "left", pad = "0")) %>%
-    mutate(resultado = paste0(co_ano, "-", co_mes)) %>%
-    pull(resultado)
+  arrow::open_dataset(diretorio) %>%
+    dplyr::select(co_ano, co_mes) %>%
+    dplyr::distinct() %>%
+    dplyr::collect() %>%
+    dplyr::filter(co_ano == max(co_ano)) %>%
+    dplyr::filter(co_mes == max(co_mes)) %>%
+    dplyr::mutate(co_mes = stringr::str_pad(co_mes, 2, side = "left", pad = "0")) %>%
+    dplyr::mutate(resultado = paste0(co_ano, "-", co_mes)) %>%
+    dplyr::pull(resultado)
 }
 

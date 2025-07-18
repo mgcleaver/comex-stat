@@ -4,28 +4,28 @@
 #' 
 #' @return Um `tibble`.
 ler_download_imp <- function(path) {
-  fread(
+  data.table::fread(
     path,
     encoding = "Latin-1",
     select = c("CO_ANO", "CO_MES", "CO_NCM", "SG_UF_NCM", "CO_PAIS",
                "KG_LIQUIDO", "QT_ESTAT", "VL_FOB", "VL_FRETE", "VL_SEGURO")
   ) %>% 
-    clean_names() %>% 
-    mutate(across(c(vl_fob, kg_liquido, qt_estat, vl_frete, vl_seguro), as.numeric)) %>%
-    group_by(co_ano, co_mes, co_ncm, sg_uf_ncm, co_pais) %>%
-    summarise(across(c(vl_fob, vl_seguro, vl_frete, kg_liquido, qt_estat), sum), .groups = "drop") %>%
-    mutate(
+    janitor::clean_names() %>% 
+    dplyr::mutate(across(c(vl_fob, kg_liquido, qt_estat, vl_frete, vl_seguro), as.numeric)) %>%
+    dplyr::group_by(co_ano, co_mes, co_ncm, sg_uf_ncm, co_pais) %>%
+    dplyr::summarise(across(c(vl_fob, vl_seguro, vl_frete, kg_liquido, qt_estat), sum), .groups = "drop") %>%
+    dplyr::mutate(
       vl_cif = vl_fob + vl_seguro + vl_frete,
       co_ncm = str_pad(co_ncm, 8, "left", "0")
     ) %>%
-    select(-vl_seguro, -vl_frete) %>%
-    relocate(vl_cif, .after = vl_fob) %>%
-    left_join(paises, by = "co_pais") %>%
-    left_join(uf, by = "sg_uf_ncm") %>% 
-    select(-co_pais, -sg_uf_ncm) %>%
-    relocate(no_pais, .before = co_ncm) %>%
-    relocate(no_uf, .before = no_pais) %>%
-    arrange(co_mes)
+    dplyr::select(-vl_seguro, -vl_frete) %>%
+    dplyr::relocate(vl_cif, .after = vl_fob) %>%
+    dplyr::left_join(paises, by = "co_pais") %>%
+    dplyr::left_join(uf, by = "sg_uf_ncm") %>% 
+    dplyr::select(-co_pais, -sg_uf_ncm) %>%
+    dplyr::relocate(no_pais, .before = co_ncm) %>%
+    dplyr::relocate(no_uf, .before = no_pais) %>%
+    dplyr::arrange(co_mes)
 }
 
 #' Função auxiliar para ler arquivo de exportação baixado
@@ -34,23 +34,23 @@ ler_download_imp <- function(path) {
 #' 
 #' @return Um `tibble`.
 ler_download_exp <- function(path) {
-  fread(
+  data.table::fread(
     path,
     encoding = "Latin-1",
     select = c("CO_ANO", "CO_MES", "CO_NCM", "SG_UF_NCM",
                "CO_PAIS", "KG_LIQUIDO", "QT_ESTAT", "VL_FOB")
   ) %>%
-    clean_names() %>%
-    mutate(across(c(vl_fob, kg_liquido, qt_estat), as.numeric)) %>%
-    group_by(co_ano, co_mes, co_ncm, sg_uf_ncm, co_pais) %>%
-    summarise(across(c(vl_fob, kg_liquido, qt_estat), sum), .groups = "drop") %>%
-    mutate(co_ncm = str_pad(co_ncm, 8, "left", "0")) %>%
-    left_join(paises, by = "co_pais") %>%
-    left_join(uf, by = "sg_uf_ncm") %>% 
-    select(-co_pais, -sg_uf_ncm) %>%
-    relocate(no_pais, .before = co_ncm) %>%
-    relocate(no_uf, .before = no_pais) %>%
-    arrange(co_mes)
+    janitor::clean_names() %>%
+    dplyr::mutate(across(c(vl_fob, kg_liquido, qt_estat), as.numeric)) %>%
+    dplyr::group_by(co_ano, co_mes, co_ncm, sg_uf_ncm, co_pais) %>%
+    dplyr::summarise(across(c(vl_fob, kg_liquido, qt_estat), sum), .groups = "drop") %>%
+    dplyr::mutate(co_ncm = str_pad(co_ncm, 8, "left", "0")) %>%
+    dplyr::left_join(paises, by = "co_pais") %>%
+    dplyr::left_join(uf, by = "sg_uf_ncm") %>% 
+    dplyr::select(-co_pais, -sg_uf_ncm) %>%
+    dplyr::relocate(no_pais, .before = co_ncm) %>%
+    dplyr::relocate(no_uf, .before = no_pais) %>%
+    dplyr::arrange(co_mes)
 }
 
 #' Baixa, trata e salva dados do Comex Stat na pasta database em formato Parquet

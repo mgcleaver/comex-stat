@@ -31,10 +31,10 @@ download_tabela_aux <- function(url, path) {
 #'
 #' @return Um `tibble`.
 ler_tabela_aux <- function(path) {
-  fread(
+  data.table::fread(
     path,
     encoding = "Latin-1"
   ) %>%
-    clean_names() %>%
-    as_tibble()
+    janitor::clean_names() %>%
+    tibble::as_tibble()
 }
