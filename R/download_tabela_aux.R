@@ -18,7 +18,7 @@ download_tabela_aux <- function(url, path) {
   if (!file.exists(path) || file.info(path)$size == 0) {
     stop("Download falhou: arquivo não existe ou está vazio.")
   }
-  message(glue::glue("Download ok\n"))
+  message(glue::glue("Download de tabela temporária ok\n"))
 }
 
 #' Lê uma tabela auxiliar do disco, aplica limpeza de nomes e transforma em tibble
@@ -34,7 +34,7 @@ ler_tabela_aux <- function(path) {
   data.table::fread(
     path,
     encoding = "Latin-1"
-  ) %>%
-    janitor::clean_names() %>%
+  ) |>
+    janitor::clean_names() |>
     tibble::as_tibble()
 }
