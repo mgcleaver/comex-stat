@@ -37,7 +37,7 @@ create_cs_db <- function(
   schema_comexstat_exp <- create_schema(category = "export")
   schema_comexstat_imp <- create_schema(category = "import")
 
-  schemas_bases <- list(exp = schema_comexstat_exp, imp = schema_comexstat_imp)
+  df_schemas <- list(exp = schema_comexstat_exp, imp = schema_comexstat_imp)
 
   message("Creating export and import folders inside desired path\n")
   # creates folder for exports
@@ -71,10 +71,10 @@ create_cs_db <- function(
     purrr::walk(~ build_db(
       .x,
       db_dirs = paths,
-      schemas = schemas_bases)
+      schemas = df_schemas)
     )
-  message(glue::glue("✔ Database written to: {output_path}\n"))
 
+  message(glue::glue("✔ Database written to: {output_path}\n"))
 
 }
 
@@ -163,7 +163,7 @@ update_cs_db <- function(
   schema_comexstat_exp <- create_schema(category = "export")
   schema_comexstat_imp <- create_schema(category = "import")
 
-  schemas_bases <- list(exp = schema_comexstat_exp, imp = schema_comexstat_imp)
+  df_schemas <- list(exp = schema_comexstat_exp, imp = schema_comexstat_imp)
 
   # ignore years that have already been downloaded correctly
   years_to_exclude_from_download <- intersect(available_exp_years, available_imp_years)
@@ -237,16 +237,13 @@ update_cs_db <- function(
     stringr::str_subset("COMPLETA|CONFERENCIA", negate = TRUE) |>
     stringr::str_subset(years_to_download)
 
-
   # download and update database
   message("Downloading files...\n")
   links_download |>
     purrr::walk(~ build_db(
       .x,
       db_dirs = paths,
-      schemas = schemas_bases)
+      schemas = df_schemas)
     )
-
   message("✔ Update complete\n")
-
 }
