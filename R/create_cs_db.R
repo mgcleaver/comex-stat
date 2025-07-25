@@ -110,7 +110,7 @@ create_cs_db <- function(
     stringr::str_subset(anos_para_baixar)
 
 
-  # aplicar função download_cs_file para vetor links_download
+  # download and build database
   links_download |>
     purrr::walk(~ build_db(
       .x,
@@ -287,7 +287,7 @@ atualiza_base <- function(
     stringr::str_subset(anos_para_baixar)
 
 
-  # aplicar função download_cs_file para vetor links_download
+  # download and update database
   links_download |>
     purrr::walk(~ build_db(
       .x,
