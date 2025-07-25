@@ -39,7 +39,7 @@ create_cs_db <- function(
 
   schemas_bases <- list(exp = schema_comexstat_exp, imp = schema_comexstat_imp)
 
-  cat("Creating export and import folders inside desired path\n")
+  message("Creating export and import folders inside desired path\n")
   # creates folder for exports
   dir.create(
     path_exp,
@@ -66,12 +66,15 @@ create_cs_db <- function(
     stringr::str_subset(years_to_download)
 
   # download and build database
+  message("Downloading files...\n")
   links_download |>
     purrr::walk(~ build_db(
       .x,
       db_dirs = paths,
       schemas = schemas_bases)
     )
+  message(glue::glue("✔ Database written to: {output_path}\n"))
+
 
 }
 
@@ -121,6 +124,7 @@ update_cs_db <- function(
          Try running the function create_cs_db\n")
   }
 
+  message("Updating database\n")
   # check start_year to build/update database
   if (is.null(start_year)) {
     exp_min_year <- min(available_exp_years) |>
@@ -217,7 +221,7 @@ update_cs_db <- function(
     stop("The database is already updated")
   }
 
-  cat(glue::glue("Local Comex Stat database is outdated. Updating...\n"))
+  message(glue::glue("Local Comex Stat database is outdated. Updating...\n"))
 
   # cria regex para selecão de links
   years_to_download <- paste0(years_to_download, collapse = "|")
@@ -235,11 +239,14 @@ update_cs_db <- function(
 
 
   # download and update database
+  message("Downloading files...\n")
   links_download |>
     purrr::walk(~ build_db(
       .x,
       db_dirs = paths,
       schemas = schemas_bases)
     )
+
+  message("✔ Update complete\n")
 
 }

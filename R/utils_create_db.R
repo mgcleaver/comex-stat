@@ -7,9 +7,9 @@ create_schema <- function(category = c("export", "import")) {
     return(arrow::schema(
       co_ano = arrow::int32(),
       co_mes = arrow::int32(),
+      co_ncm = arrow::utf8(),
       sg_uf_ncm = arrow::utf8(),
       co_pais = arrow::int32(),
-      co_ncm = arrow::utf8(),
       vl_fob = arrow::int64(),
       kg_liquido = arrow::int64(),
       qt_estat = arrow::int64()
@@ -21,9 +21,9 @@ create_schema <- function(category = c("export", "import")) {
     return(arrow::schema(
       co_ano = arrow::int32(),
       co_mes = arrow::int32(),
+      co_ncm = arrow::utf8(),
       sg_uf_ncm = arrow::utf8(),
       co_pais = arrow::int32(),
-      co_ncm = arrow::utf8(),
       vl_fob = arrow::int64(),
       vl_cif = arrow::int64(), # exportações não tem esse dado
       kg_liquido = arrow::int64(),
