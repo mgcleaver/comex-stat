@@ -44,7 +44,7 @@ write_cs_db <- function(x, path, data_schema) {
 build_db <- function(link_download, db_dirs, schemas) {
   temp_dir <- file.path(withr::local_tempdir(), "temp.csv")
   year_from_link <- stringr::str_extract(link_download, "[0-9]{4}")
-  tipo <- stringr::str_extract(link_download, "EXP|IMP") |>
+  category <- stringr::str_extract(link_download, "EXP|IMP") |>
     stringr::str_to_lower()
 
   download_cs_file(
@@ -52,14 +52,14 @@ build_db <- function(link_download, db_dirs, schemas) {
     dir_file_download = temp_dir
   )
 
-  if (tipo == "imp") {
+  if (category == "imp") {
     selected_data <- read_imports(temp_dir)
     write_cs_db(
       x = selected_data,
       path = stringr::str_subset(db_dirs, "imp"),
       data_schema = schemas[["imp"]]
     )
-  } else if (tipo == "exp") {
+  } else if (category == "exp") {
     selected_data <- read_exports(temp_dir)
     write_cs_db(
       x = selected_data,
@@ -67,7 +67,7 @@ build_db <- function(link_download, db_dirs, schemas) {
       data_schema = schemas[["exp"]]
     )
   }
-  message(glue::glue("Download and data write for {tipo} {year_from_link} complete\n"))
+  message(glue::glue("Download and data write for {category} {year_from_link} complete\n"))
 }
 
 download_cs_file <- function(link_download, dir_file_download) {
@@ -91,7 +91,7 @@ download_cs_file <- function(link_download, dir_file_download) {
     })
   }
   if (!download_success) {
-    stop(glue::glue("Failed to download {tipo} {year_from_link} after 3 attempts.\n"))
+    stop(glue::glue("Failed to download {category} {year_from_link} after 3 attempts.\n"))
   }
 }
 

@@ -12,8 +12,8 @@ links_download <- page |>
   stringr::str_subset("COMPLETA|CONFERENCIA", negate = TRUE) |>
   stringr::str_subset(anos_para_baixar)
 
-link_download_paises <- achar_link_tabela_aux(page, "PAIS")
-link_download_uf <- achar_link_tabela_aux(page, "UF")
+link_download_paises <- find_table_link(page, "PAIS")
+link_download_uf <- find_table_link(page, "UF")
 
 # Define local do diretório temporário de arquivos
 dir_temp_pais <- file.path(temp, "pais.csv")

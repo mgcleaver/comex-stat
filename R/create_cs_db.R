@@ -1,4 +1,4 @@
-achar_link_tabela_aux <- function(page, nome){
+find_table_link <- function(page, nome){
 
   page |>
     rvest::html_elements("table tr td a") |>
@@ -6,11 +6,11 @@ achar_link_tabela_aux <- function(page, nome){
     stringr::str_subset(glue::glue("{nome}.csv"))
 }
 
-cria_esquema <- function(tipo = c("export", "import")) {
-  tipo <- match.arg(tipo)
+create_schema <- function(category = c("export", "import")) {
+  category <- match.arg(category)
 
-  if(tipo == "export") {
-    # Cria "schema" para base de dados de exportação
+  if(category == "export") {
+    # Schema for exports
     return(arrow::schema(
       co_ano = arrow::int32(),
       co_mes = arrow::int32(),
@@ -23,8 +23,8 @@ cria_esquema <- function(tipo = c("export", "import")) {
     ))
   }
 
-  if(tipo == "import") {
-    # Cria "schema" para base de dados de importação
+  if(category == "import") {
+    # Schema for imports
     return(arrow::schema(
       co_ano = arrow::int32(),
       co_mes = arrow::int32(),
@@ -40,109 +40,101 @@ cria_esquema <- function(tipo = c("export", "import")) {
 }
 
 create_cs_db <- function(
-    dest_dir, # diretório onde a base será criada
-    ano_inicial, # ano inicial da base
-    timeout = 2000 # tempo necessário para download
+    dest_dir,
+    start_year,
+    timeout = 2000
 ) {
 
-  # Link da página do Comex Stat para baixar dados brutos
+  # Link for raw data
   link_cs <-
     "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
 
-  # Definir tempo limite para download. É necessário definir um tempo maior, uma
-  # vez que é possível que o download demore mais do que o esperado. Alterar caso
-  # seja necessário um tempo maior.
   options(timeout = timeout)
 
-  # cria intervalo de anos a serem excluídos da base local
-  intervalo_para_exclusao <- 1997:(ano_inicial - 1)
+  # filter out undesired years for database
+  filter_out_interval <- 1997:(start_year - 1)
 
-  # obter data corrente
-  data_corrente <- Sys.Date()
+  # get current date
+  current_date <- Sys.Date()
 
-  # obtém ano corrente e passa para classe numérica. Isso é necessário
-  # para poder subtrair do ano
-  ano_corrente <- stringr::str_sub(data_corrente, 1, 4) |>
+  # get current year
+  current_year <- stringr::str_sub(current_date, 1, 4) |>
     as.numeric()
 
-  # obter vetor dos anos da série do comex stat
-  serie_cstat <- 1997:ano_corrente # 1997 é o início da serie no comex stat
+  # get all available years for comex stat. 1997 is the first available year
+  cs_all_years_series <- 1997:current_year
 
-  # obter anos para série do comex stat local
-  serie_cstat_desejada <- setdiff(serie_cstat, intervalo_para_exclusao)
+  # get years for desired data
+  desired_data <- setdiff(cs_all_years_series, filter_out_interval)
 
-  # Diretórios para base
-  diretorio_exp <- file.path(dest_dir, "export")
-  diretorio_imp <- file.path(dest_dir, "import")
+  # paths for export and import data
+  path_exp <- file.path(dest_dir, "export")
+  path_imp <- file.path(dest_dir, "import")
 
-  diretorios <- c(diretorio_exp, diretorio_imp)
+  paths <- c(path_exp, path_imp)
 
-  # cria esquemas
-  schema_comexstat_exp <- cria_esquema(tipo = "export")
-  schema_comexstat_imp <- cria_esquema(tipo = "import")
+  # create export and import schemas
+  schema_comexstat_exp <- create_schema(category = "export")
+  schema_comexstat_imp <- create_schema(category = "import")
 
   schemas_bases <- list(exp = schema_comexstat_exp, imp = schema_comexstat_imp)
 
-  # cria subpasta para dados de exportação
+  cat("Creating export and import folders inside desired path\n")
+  # creates folder for exports
   dir.create(
-    diretorio_exp,
+    path_exp,
     recursive = TRUE
   )
 
-  # cria subpasta para dados de exportação
+  # creates folder for imports
   dir.create(
-    diretorio_imp,
+    path_imp,
     recursive = TRUE
   )
-  cat("Subpastas export e import criadas com sucesso na pasta database\n")
 
-  anos_para_baixar <- paste0(serie_cstat_desejada, collapse = "|")
+  years_to_download <- paste0(desired_data, collapse = "|")
 
-  # obter dados html de link_cs
+  # get html data
   page <- rvest::read_html(link_cs)
 
-  # obter links relevantes para download dos dados ano a ano
+  # links to download database
   links_download <- page |>
     rvest::html_elements("table tr td a") |>
     rvest::html_attr("href") |>
     stringr::str_subset("/ncm/") |>
     stringr::str_subset("COMPLETA|CONFERENCIA", negate = TRUE) |>
-    stringr::str_subset(anos_para_baixar)
-
+    stringr::str_subset(years_to_download)
 
   # download and build database
   links_download |>
     purrr::walk(~ build_db(
       .x,
-      db_dirs = diretorios,
+      db_dirs = paths,
       schemas = schemas_bases)
     )
 
 }
 
-atualiza_base <- function(
-    dest_dir, # diretório onde a base será criada
-    ano_inicial = NULL, # ano inicial da base
-    timeout = 2000 # tempo necessário para download
+update_cs_db <- function(
+    dest_dir,
+    start_year = NULL,
+    timeout = 2000
 ) {
-  # Link da página do Comex Stat para baixar dados brutos
+
   link_cs <-
     "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
 
-  # Definir tempo limite para download. É necessário definir um tempo maior, uma
-  # vez que é possível que o download demore mais do que o esperado. Alterar caso
-  # seja necessário um tempo maior.
   options(timeout = timeout)
 
-  # Diretórios para base
-  diretorio_exp <- file.path(dest_dir, "export")
-  diretorio_imp <- file.path(dest_dir, "import")
+  # paths for export and import data
+  path_exp <- file.path(dest_dir, "export")
+  path_imp <- file.path(dest_dir, "import")
 
-  diretorios <- c(diretorio_exp, diretorio_imp)
+  paths <- c(path_exp, path_imp)
 
-  # obter anos disponíveis dos dados na pasta de exportações
-  anos_disponiveis_exp <- try(
-    arrow::open_dataset(diretorio_exp) |>
+  # get available years in export database
+  available_exp_years <- try(
+    arrow::open_dataset(path_exp) |>
       dplyr::select(co_ano) |>
       dplyr::distinct() |>
       dplyr::collect() |>
@@ -151,9 +143,9 @@ atualiza_base <- function(
     silent = TRUE
   )
 
-  # obter anos disponíveis dos dados na pasta de importações
-  anos_disponiveis_imp <- try(
-    arrow::open_dataset(diretorio_imp) |>
+  # get available years in import database
+  available_imp_years <- try(
+    arrow::open_dataset(path_imp) |>
       dplyr::select(co_ano) |>
       dplyr::distinct() |>
       dplyr::collect() |>
@@ -161,63 +153,59 @@ atualiza_base <- function(
       sort(),
     silent = TRUE)
 
-  # caso haja alguma falha na primeira execução lançamos erro
   if (
-    inherits(anos_disponiveis_exp, "try-error") ||
-    inherits(anos_disponiveis_imp, "try-error")
+    inherits(available_exp_years, "try-error") ||
+    inherits(available_imp_years, "try-error")
   ) {
     stop("The database was generated with errors and cannot be updated.
          Try running the function create_cs_db\n")
   }
 
-  # obter ano inicial da base
-  if (is.null(ano_inicial)) {
-    ano_min_exp <- min(anos_disponiveis_exp) |>
+  # check start_year to build/update database
+  if (is.null(start_year)) {
+    exp_min_year <- min(available_exp_years) |>
       unique()
-    ano_min_imp <- min(anos_disponiveis_exp) |>
+    imp_min_year <- min(available_exp_years) |>
       unique()
 
-    if (ano_min_exp == ano_min_imp) {
-      ano_inicial <- ano_min_exp
+    if (exp_min_year == imp_min_year) {
+      start_year <- exp_min_year
     }
 
-    if(ano_min_exp > ano_min_imp) {
-      ano_inicial <- ano_min_imp
+    if(exp_min_year > imp_min_year) {
+      start_year <- imp_min_year
     } else {
-      ano_inicial <- ano_min_exp
+      start_year <- exp_min_year
     }
   }
 
+  # filter out years to download
+  filter_out_interval <- 1997:(start_year - 1)
 
-  # cria intervalo de anos a serem excluídos da base local
-  intervalo_para_exclusao <- 1997:(ano_inicial - 1)
+  # get current date
+  current_date <- Sys.Date()
 
-  # obter data corrente
-  data_corrente <- Sys.Date()
-
-  # obtém ano corrente e passa para classe numérica. Isso é necessário
-  # para poder subtrair do ano
-  ano_corrente <- stringr::str_sub(data_corrente, 1, 4) |>
+  # get current year
+  current_year <- stringr::str_sub(current_date, 1, 4) |>
     as.numeric()
 
-  # obter vetor dos anos da série do comex stat
-  serie_cstat <- 1997:ano_corrente # 1997 é o início da serie no comex stat
+  # get all available years in comex stat. 1997 is the first year of the database.
+  cs_all_years_series <- 1997:current_year
 
-  # obter anos para série do comex stat local
-  serie_cstat_desejada <- setdiff(serie_cstat, intervalo_para_exclusao)
+  # get desired years for database
+  desired_data <- setdiff(cs_all_years_series, filter_out_interval)
 
-  # cria esquemas
-  schema_comexstat_exp <- cria_esquema(tipo = "export")
-  schema_comexstat_imp <- cria_esquema(tipo = "import")
+  # create schemas for export and import database
+  schema_comexstat_exp <- create_schema(category = "export")
+  schema_comexstat_imp <- create_schema(category = "import")
 
   schemas_bases <- list(exp = schema_comexstat_exp, imp = schema_comexstat_imp)
 
-  # selecionar anos que nao precisam ser baixados, desde que estejam presentes
-  # tanto em exportações como em importações
-  excluir_anos_download <- intersect(anos_disponiveis_exp, anos_disponiveis_imp)
+  # ignore years that have already been downloaded correctly
+  years_to_exclude_from_download <- intersect(available_exp_years, available_imp_years)
 
-  # obter período dos últimos dados disponíveis na base local
-  atualizacao_local_imp <- arrow::open_dataset(diretorio_imp) |>
+  # get most recent date for import database
+  imp_last_update <- arrow::open_dataset(path_imp) |>
     dplyr::select(co_ano, co_mes) |>
     dplyr::distinct() |>
     dplyr::collect() |>
@@ -227,7 +215,8 @@ atualiza_base <- function(
     tidyr::unite(col = "atualizacao", co_ano, co_mes, sep = "-") |>
     dplyr::pull(atualizacao)
 
-  atualizacao_local_exp <- arrow::open_dataset(diretorio_exp) |>
+  # get most recent date for export database
+  exp_last_update <- arrow::open_dataset(path_exp) |>
     dplyr::select(co_ano, co_mes) |>
     dplyr::distinct() |>
     dplyr::collect() |>
@@ -237,35 +226,33 @@ atualiza_base <- function(
     tidyr::unite(col = "atualizacao", co_ano, co_mes, sep = "-") |>
     dplyr::pull(atualizacao)
 
-  # testa se bases estão atualizadas
-  teste_base_export <- compara_base_local(diretorio = diretorio_exp)
-  teste_base_import <- compara_base_local(diretorio = diretorio_imp)
+  # tests if databases are updated
+  test_db_export <- compare_local_db(file_dir = path_exp)
+  test_db_import <- compare_local_db(file_dir = path_imp)
 
-  # ano_update_base_oficial é o ano da última atulização dos dados no site do comex stat
-  ano_update_base_oficial <- stringr::str_sub(get_last_update(), 1, 4)
+  # get the last available year in the official comex stat database
+  official_last_year_update <- stringr::str_sub(get_last_update(), 1, 4)
 
-  # ano_update_base_local é o último ano de atualização da base do comex stat
-  # na pasta database
-  ano_update_base_local <- stringr::str_sub(atualizacao_local_imp, 1, 4)
+  # get the last year on the local database
+  local_last_year_update <- stringr::str_sub(imp_last_update, 1, 4)
 
-  # Além dos anos já definidos para exlcusão anteriormente, remover ano corrente
-  # e ano imediatamente anterior caso não esteja atualizado
-  excluir_anos_download <-
-    excluir_anos_download[!excluir_anos_download %in% ano_update_base_local:ano_update_base_oficial]
+  # years do remove from download
+  years_to_exclude_from_download <-
+    years_to_exclude_from_download[!years_to_exclude_from_download %in% local_last_year_update:official_last_year_update]
 
   # Selecionar anos que serão atualizados/baixados nas base
-  anos_para_baixar <- setdiff(serie_cstat_desejada, excluir_anos_download)
+  years_to_download <- setdiff(desired_data, years_to_exclude_from_download)
 
   # testa se foram solicitados anos anteriores aos que estão disponíveis
   # na base local
   teste_anos_anteriores <- stringr::str_detect(
-    anos_para_baixar,
-    ano_update_base_oficial,
+    years_to_download,
+    official_last_year_update,
     negate = TRUE
   ) %>%
     any()
 
-  if(teste_base_export && teste_base_import && !teste_anos_anteriores) {
+  if(test_db_export && test_db_import && !teste_anos_anteriores) {
     # se a condição for verdadeira, a base está atualizada
     stop("The database is already updated")
   }
@@ -273,7 +260,7 @@ atualiza_base <- function(
   cat(glue::glue("Local Comex Stat database is outdated. Updating...\n"))
 
   # cria regex para selecão de links
-  anos_para_baixar <- paste0(anos_para_baixar, collapse = "|")
+  years_to_download <- paste0(years_to_download, collapse = "|")
 
   # obter dados html de link_cs
   page <- rvest::read_html(link_cs)
@@ -284,14 +271,14 @@ atualiza_base <- function(
     rvest::html_attr("href") |>
     stringr::str_subset("/ncm/") |>
     stringr::str_subset("COMPLETA|CONFERENCIA", negate = TRUE) |>
-    stringr::str_subset(anos_para_baixar)
+    stringr::str_subset(years_to_download)
 
 
   # download and update database
   links_download |>
     purrr::walk(~ build_db(
       .x,
-      db_dirs = diretorios,
+      db_dirs = paths,
       schemas = schemas_bases)
     )
 
