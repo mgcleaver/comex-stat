@@ -43,6 +43,7 @@ write_cs_db <- function(x, path, data_schema) {
 
 build_db <- function(link_download, db_dirs, schemas) {
   temp_dir <- file.path(withr::local_tempdir(), "temp.csv")
+  year_from_link <- stringr::str_extract(link_download, "[0-9]{4}")
   tipo <- stringr::str_extract(link_download, "EXP|IMP") |>
     stringr::str_to_lower()
 
@@ -66,15 +67,15 @@ build_db <- function(link_download, db_dirs, schemas) {
       data_schema = schemas[["exp"]]
     )
   }
-  message(glue::glue("Download and data write for {tipo} {ano_link} complete\n"))
+  message(glue::glue("Download and data write for {tipo} {year_from_link} complete\n"))
 }
 
 download_cs_file <- function(link_download, dir_file_download) {
-  ano_link <- stringr::str_extract(link_download, "[0-9]{4}")
+  year_from_link <- stringr::str_extract(link_download, "[0-9]{4}")
   sleep <- 5
   download_success <- FALSE
 
-  for (tentativa in 1:3) {
+  for (attempt in 1:3) {
     tryCatch({
       httr::GET(
         link_download,
@@ -85,12 +86,12 @@ download_cs_file <- function(link_download, dir_file_download) {
       break
     },
     error = function(e) {
-      message(glue::glue("Attempt {tentativa} failed: {e$message}"))
-      if (tentativa < 3) Sys.sleep(sleep)
+      message(glue::glue("Attempt {attempt} failed: {e$message}"))
+      if (attempt < 3) Sys.sleep(sleep)
     })
   }
   if (!download_success) {
-    stop(glue::glue("Failed to download {tipo} {ano_link} after 3 attempts.\n"))
+    stop(glue::glue("Failed to download {tipo} {year_from_link} after 3 attempts.\n"))
   }
 }
 
