@@ -92,7 +92,6 @@ download_cs_file <- function(link_download, dir_file_download) {
   }
 }
 
-
 read_imports <- function(path) {
   data.table::fread(
     path,
@@ -141,6 +140,7 @@ build_db <- function(link_download, db_dirs, schemas) {
   category <- stringr::str_extract(link_download, "EXP|IMP") |>
     stringr::str_to_lower()
 
+  message(glue::glue("Downloading {category} {year_from_link}\n"))
   download_cs_file(
     link_download = link_download,
     dir_file_download = temp_dir
