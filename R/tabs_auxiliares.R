@@ -1,3 +1,11 @@
+find_table_link <- function(page, nome){
+
+  page |>
+    rvest::html_elements("table tr td a") |>
+    rvest::html_attr("href") |>
+    stringr::str_subset(glue::glue("{nome}.csv"))
+}
+
 link_cs <-
   "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
 

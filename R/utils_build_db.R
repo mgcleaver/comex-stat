@@ -1,4 +1,98 @@
 
+create_schema <- function(category = c("export", "import")) {
+  category <- match.arg(category)
+
+  if(category == "export") {
+    # Schema for exports
+    return(arrow::schema(
+      co_ano = arrow::int32(),
+      co_mes = arrow::int32(),
+      sg_uf_ncm = arrow::utf8(),
+      co_pais = arrow::int32(),
+      co_ncm = arrow::utf8(),
+      vl_fob = arrow::int64(),
+      kg_liquido = arrow::int64(),
+      qt_estat = arrow::int64()
+    ))
+  }
+
+  if(category == "import") {
+    # Schema for imports
+    return(arrow::schema(
+      co_ano = arrow::int32(),
+      co_mes = arrow::int32(),
+      sg_uf_ncm = arrow::utf8(),
+      co_pais = arrow::int32(),
+      co_ncm = arrow::utf8(),
+      vl_fob = arrow::int64(),
+      vl_cif = arrow::int64(), # exportações não tem esse dado
+      kg_liquido = arrow::int64(),
+      qt_estat = arrow::int64()
+    ))
+  }
+}
+
+compare_local_db <- function(file_dir) {
+  temp_date_api <- get_last_update()
+  temp_date_local <- most_recent_date(file_dir = file_dir)
+
+  if (temp_date_api == temp_date_local) {
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
+get_last_update <- function() {
+  url <- "https://api-comexstat.mdic.gov.br/general/dates/updated"
+
+  response <- httr::GET(url)
+  json_data <- suppressMessages(httr::content(response, as = "text"))
+
+  last_update <- jsonlite::fromJSON(json_data, flatten = TRUE) |>
+    purrr::pluck("data")
+
+  paste0(last_update$year, "-", stringr::str_pad(last_update$monthNumber, 2, "left", "0"))
+}
+
+
+most_recent_date <- function(file_dir) {
+  arrow::open_dataset(file_dir) |>
+    dplyr::select(co_ano, co_mes) |>
+    dplyr::distinct() |>
+    dplyr::collect() |>
+    dplyr::filter(co_ano == max(co_ano)) |>
+    dplyr::filter(co_mes == max(co_mes)) |>
+    dplyr::mutate(co_mes = stringr::str_pad(co_mes, 2, side = "left", pad = "0")) |>
+    dplyr::mutate(resultado = paste0(co_ano, "-", co_mes)) |>
+    dplyr::pull(resultado)
+}
+
+download_cs_file <- function(link_download, dir_file_download) {
+  year_from_link <- stringr::str_extract(link_download, "[0-9]{4}")
+  sleep <- 5
+  download_success <- FALSE
+
+  for (attempt in 1:3) {
+    tryCatch({
+      httr::GET(
+        link_download,
+        httr::write_disk(dir_file_download, overwrite = TRUE),
+        httr::progress()
+      )
+      download_success <- TRUE
+      break
+    },
+    error = function(e) {
+      message(glue::glue("Attempt {attempt} failed: {e$message}"))
+      if (attempt < 3) Sys.sleep(sleep)
+    })
+  }
+  if (!download_success) {
+    stop(glue::glue("Failed to download {category} {year_from_link} after 3 attempts.\n"))
+  }
+}
+
+
 read_imports <- function(path) {
   data.table::fread(
     path,
@@ -69,29 +163,3 @@ build_db <- function(link_download, db_dirs, schemas) {
   }
   message(glue::glue("Download and data write for {category} {year_from_link} complete\n"))
 }
-
-download_cs_file <- function(link_download, dir_file_download) {
-  year_from_link <- stringr::str_extract(link_download, "[0-9]{4}")
-  sleep <- 5
-  download_success <- FALSE
-
-  for (attempt in 1:3) {
-    tryCatch({
-      httr::GET(
-        link_download,
-        httr::write_disk(dir_file_download, overwrite = TRUE),
-        httr::progress()
-        )
-      download_success <- TRUE
-      break
-    },
-    error = function(e) {
-      message(glue::glue("Attempt {attempt} failed: {e$message}"))
-      if (attempt < 3) Sys.sleep(sleep)
-    })
-  }
-  if (!download_success) {
-    stop(glue::glue("Failed to download {category} {year_from_link} after 3 attempts.\n"))
-  }
-}
-
