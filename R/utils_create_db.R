@@ -1,4 +1,13 @@
-
+#' Create Arrow Schema for Import or Export Data
+#'
+#' Internal helper function to define a schema used when writing datasets.
+#'
+#' @param category Character string. Either `"export"` or `"import"`, indicating the data type.
+#'
+#' @return An `arrow::schema` object matching the specified category.
+#'
+#' @keywords internal
+#' @noRd
 create_schema <- function(category = c("export", "import")) {
   category <- match.arg(category)
 
@@ -32,6 +41,16 @@ create_schema <- function(category = c("export", "import")) {
   }
 }
 
+#' Compare Local Database Date with last date available in API
+#'
+#' Checks if the local database is up-to-date compared to the API's last update.
+#'
+#' @param file_dir Character string. Path to the local Arrow dataset directory.
+#'
+#' @return Logical value. `TRUE` if the local dataset is up to date, `FALSE` otherwise.
+#'
+#' @keywords internal
+#' @noRd
 compare_local_db <- function(file_dir) {
   temp_date_api <- get_last_update()
   temp_date_local <- most_recent_date(file_dir = file_dir)
@@ -42,6 +61,14 @@ compare_local_db <- function(file_dir) {
   return(FALSE)
 }
 
+#' Get Last Available Update from API
+#'
+#' Queries the Comex Stat API to retrieve the most recent available update date.
+#'
+#' @return A character string in the format `"yyyy-mm"` representing the most recent update.
+#'
+#' @keywords internal
+#' @noRd
 get_last_update <- function() {
   url <- "https://api-comexstat.mdic.gov.br/general/dates/updated"
 
@@ -54,7 +81,16 @@ get_last_update <- function() {
   paste0(last_update$year, "-", stringr::str_pad(last_update$monthNumber, 2, "left", "0"))
 }
 
-
+#' Get Most Recent Date from Local Dataset
+#'
+#' Extracts the most recent year and month available in a local Arrow dataset.
+#'
+#' @param file_dir Character string. Path to the local Arrow dataset directory.
+#'
+#' @return A character string in the format `"yyyy-mm"` representing the most recent local date.
+#'
+#' @keywords internal
+#' @noRd
 most_recent_date <- function(file_dir) {
   arrow::open_dataset(file_dir) |>
     dplyr::select(co_ano, co_mes) |>
@@ -63,10 +99,21 @@ most_recent_date <- function(file_dir) {
     dplyr::filter(co_ano == max(co_ano)) |>
     dplyr::filter(co_mes == max(co_mes)) |>
     dplyr::mutate(co_mes = stringr::str_pad(co_mes, 2, side = "left", pad = "0")) |>
-    dplyr::mutate(resultado = paste0(co_ano, "-", co_mes)) |>
-    dplyr::pull(resultado)
+    dplyr::mutate(result = paste0(co_ano, "-", co_mes)) |>
+    dplyr::pull(result)
 }
 
+#' Download Comex Stat year files with retry
+#'
+#' Downloads a file with up to 3 retry attempts if errors occur.
+#'
+#' @param link_download Character string. URL for the CSV file.
+#' @param dir_file_download Character string. Local path to save the downloaded file.
+#'
+#' @return No return value. File is written to disk or an error is thrown after 3 failed attempts.
+#'
+#' @keywords internal
+#' @noRd
 download_cs_file <- function(link_download, dir_file_download) {
   year_from_link <- stringr::str_extract(link_download, "[0-9]{4}")
   sleep <- 5
@@ -92,6 +139,16 @@ download_cs_file <- function(link_download, dir_file_download) {
   }
 }
 
+#' Read and Process Import Data from CSV
+#'
+#' Reads a CSV file for import data and performs transformations.
+#'
+#' @param path Character string. File path to the downloaded import csv file.
+#'
+#' @return A `tibble` with cleaned and grouped import data.
+#'
+#' @keywords internal
+#' @noRd
 read_imports <- function(path) {
   data.table::fread(
     path,
@@ -112,7 +169,16 @@ read_imports <- function(path) {
     dplyr::arrange(co_mes)
 }
 
-
+#' Read and Process Export Data from CSV
+#'
+#' Reads a CSV file for export data and performs transformations.
+#'
+#' @param path Character string. File path to the export CSV file.
+#'
+#' @return A `tibble` with cleaned and grouped export data.
+#'
+#' @keywords internal
+#' @noRd
 read_exports <- function(path) {
   data.table::fread(
     path,
@@ -128,12 +194,35 @@ read_exports <- function(path) {
     dplyr::arrange(co_mes)
 }
 
+#' Write Cleaned Data to Arrow Dataset
+#'
+#' Writes a dataset to disk in Arrow format, partitioned by year.
+#'
+#' @param x tibble. A `tibble` to be written.
+#' @param path character string. Output directory for the dataset.
+#' @param data_schema An `arrow::schema` to enforce during writing.
+#'
+#' @return No return value. Writes files to the specified path.
+#'
+#' @keywords internal
+#' @noRd
 write_cs_db <- function(x, path, data_schema) {
   df <- arrow::arrow_table(x)$cast(data_schema)
   arrow::write_dataset(df, path, partitioning = "co_ano")
 }
 
-
+#' Build Database from Comex Stat CSV Link
+#'
+#' Downloads, reads, processes and writes Comex Stat data (import or export) to the appropriate Arrow dataset.
+#'
+#' @param link_download character string. URL to the Comex Stat CSV file.
+#' @param db_dirs Named character vector with paths to `"import"` and `"export"` Arrow databases.
+#' @param schemas Named list of Arrow schemas for `"import"` (imp) and `"export"` (exp) datasets.
+#'
+#' @return No return value. Data is written to disk.
+#'
+#' @keywords internal
+#' @noRd
 build_db <- function(link_download, db_dirs, schemas) {
   temp_dir <- file.path(withr::local_tempdir(), "temp.csv")
   year_from_link <- stringr::str_extract(link_download, "[0-9]{4}")
