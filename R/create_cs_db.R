@@ -1,6 +1,6 @@
 #' Create Local Comex Stat Database from Official Raw Files
 #'
-#' Downloads and processes public COMEX STAT data from the Brazilian government
+#' Downloads and processes public Comex Stat data from the Brazilian government
 #' website, creating a local database organized in Apache Arrow format, partitioned by year.
 #'
 #' @param dest_dir Character string. Path to the directory where the database should be stored.
