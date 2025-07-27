@@ -14,29 +14,29 @@ create_schema <- function(category = c("export", "import")) {
   if(category == "export") {
     # Schema for exports
     return(arrow::schema(
-      co_ano = arrow::int32(),
-      co_mes = arrow::int32(),
-      co_ncm = arrow::utf8(),
-      sg_uf_ncm = arrow::utf8(),
-      co_pais = arrow::int32(),
-      vl_fob = arrow::int64(),
-      kg_liquido = arrow::int64(),
-      qt_estat = arrow::int64()
+      year = arrow::int32(),
+      month = arrow::int32(),
+      ncm = arrow::utf8(),
+      state = arrow::utf8(),
+      country_code = arrow::int32(),
+      fob_value = arrow::int64(),
+      kg = arrow::int64(),
+      qt = arrow::int64()
     ))
   }
 
   if(category == "import") {
     # Schema for imports
     return(arrow::schema(
-      co_ano = arrow::int32(),
-      co_mes = arrow::int32(),
-      co_ncm = arrow::utf8(),
-      sg_uf_ncm = arrow::utf8(),
-      co_pais = arrow::int32(),
-      vl_fob = arrow::int64(),
-      vl_cif = arrow::int64(), # exportações não tem esse dado
-      kg_liquido = arrow::int64(),
-      qt_estat = arrow::int64()
+      year = arrow::int32(),
+      month = arrow::int32(),
+      ncm = arrow::utf8(),
+      state = arrow::utf8(),
+      country_code = arrow::int32(),
+      fob_value = arrow::int64(),
+      cif_value = arrow::int64(), # exportações não tem esse dado
+      kg = arrow::int64(),
+      qt = arrow::int64()
     ))
   }
 }
@@ -93,13 +93,13 @@ get_last_update <- function() {
 #' @noRd
 most_recent_date <- function(file_dir) {
   arrow::open_dataset(file_dir) |>
-    dplyr::select(co_ano, co_mes) |>
+    dplyr::select(year, month) |>
     dplyr::distinct() |>
     dplyr::collect() |>
-    dplyr::filter(co_ano == max(co_ano)) |>
-    dplyr::filter(co_mes == max(co_mes)) |>
-    dplyr::mutate(co_mes = stringr::str_pad(co_mes, 2, side = "left", pad = "0")) |>
-    dplyr::mutate(result = paste0(co_ano, "-", co_mes)) |>
+    dplyr::filter(year == max(year)) |>
+    dplyr::filter(month == max(month)) |>
+    dplyr::mutate(month = stringr::str_pad(month, 2, side = "left", pad = "0")) |>
+    dplyr::mutate(result = paste0(year, "-", month)) |>
     dplyr::pull(result)
 }
 
@@ -157,16 +157,20 @@ read_imports <- function(path) {
                "KG_LIQUIDO", "QT_ESTAT", "VL_FOB", "VL_FRETE", "VL_SEGURO")
   ) |>
     janitor::clean_names() |>
-    dplyr::mutate(across(c(vl_fob, kg_liquido, qt_estat, vl_frete, vl_seguro), as.numeric)) |>
-    dplyr::group_by(co_ano, co_mes, co_ncm, sg_uf_ncm, co_pais) |>
-    dplyr::summarise(across(c(vl_fob, vl_seguro, vl_frete, kg_liquido, qt_estat), sum), .groups = "drop") |>
+    dplyr::rename(
+      year = co_ano, month = co_mes, ncm = co_ncm, state = sg_uf_ncm,
+      country_code = co_pais, kg = kg_liquido, qt = qt_estat, fob_value = vl_fob
+    ) |>
+    dplyr::mutate(across(c(fob_value, kg, qt, vl_frete, vl_seguro), as.numeric)) |>
+    dplyr::group_by(year, month, ncm, state, country_code) |>
+    dplyr::summarise(across(c(fob_value, vl_seguro, vl_frete, kg, qt), sum), .groups = "drop") |>
     dplyr::mutate(
-      vl_cif = vl_fob + vl_seguro + vl_frete,
-      co_ncm = stringr::str_pad(co_ncm, 8, "left", "0")
+      cif_value = fob_value + vl_seguro + vl_frete,
+      ncm = stringr::str_pad(ncm, 8, "left", "0")
     ) |>
     dplyr::select(-vl_seguro, -vl_frete) |>
-    dplyr::relocate(vl_cif, .after = vl_fob) |>
-    dplyr::arrange(co_mes)
+    dplyr::relocate(cif_value, .after = fob_value) |>
+    dplyr::arrange(month)
 }
 
 #' Read and Process Export Data from CSV
@@ -187,11 +191,15 @@ read_exports <- function(path) {
                "CO_PAIS", "KG_LIQUIDO", "QT_ESTAT", "VL_FOB")
   ) |>
     janitor::clean_names() |>
-    dplyr::mutate(across(c(vl_fob, kg_liquido, qt_estat), as.numeric)) |>
-    dplyr::group_by(co_ano, co_mes, co_ncm, sg_uf_ncm, co_pais) |>
-    dplyr::summarise(across(c(vl_fob, kg_liquido, qt_estat), sum), .groups = "drop") |>
-    dplyr::mutate(co_ncm = stringr::str_pad(co_ncm, 8, "left", "0")) |>
-    dplyr::arrange(co_mes)
+    dplyr::rename(
+      year = co_ano, month = co_mes, ncm = co_ncm, state = sg_uf_ncm,
+      country_code = co_pais, kg = kg_liquido, qt = qt_estat, fob_value = vl_fob
+    ) |>
+    dplyr::mutate(across(c(fob_value, kg, qt), as.numeric)) |>
+    dplyr::group_by(year, month, ncm, state, country_code) |>
+    dplyr::summarise(across(c(fob_value, kg, qt), sum), .groups = "drop") |>
+    dplyr::mutate(ncm = stringr::str_pad(ncm, 8, "left", "0")) |>
+    dplyr::arrange(month)
 }
 
 #' Write Cleaned Data to Arrow Dataset
@@ -208,7 +216,7 @@ read_exports <- function(path) {
 #' @noRd
 write_cs_db <- function(x, path, data_schema) {
   df <- arrow::arrow_table(x)$cast(data_schema)
-  arrow::write_dataset(df, path, partitioning = "co_ano")
+  arrow::write_dataset(df, path, partitioning = "year")
 }
 
 #' Build Database from Comex Stat CSV Link
