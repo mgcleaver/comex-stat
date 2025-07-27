@@ -18,6 +18,11 @@
 #'
 #' @seealso [update_cs_db()]
 #'
+#' @examples
+#' \dontrun{
+#' create_cs_db(dest_dir = "data/comexstat", start_year = 2015)
+#' }
+#'
 #' @export
 create_cs_db <- function(
     dest_dir,
@@ -119,6 +124,11 @@ create_cs_db <- function(
 #' If the local database is already up-to-date, the function stops with a message.
 #'
 #' @seealso [create_cs_db()]
+#'
+#' @examples
+#' \dontrun{
+#' update_cs_db(dest_dir = "data/comexstat")
+#' }
 #'
 #' @export
 update_cs_db <- function(
