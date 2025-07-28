@@ -33,7 +33,7 @@ find_table_link <- function(name) {
   page |>
     rvest::html_elements("table tr td a") |>
     rvest::html_attr("href") |>
-    stringr::str_subset(glue::glue("{name}.csv"))
+    stringr::str_subset(glue::glue("/{name}.csv"))
 }
 
 #' Download a Comex Stat correlation table
@@ -73,7 +73,7 @@ download_correlation_table <- function(url) {
 
 #' Read a correlation table from a CSV file
 #'
-#' Reads a correlation table from a CSV file using `data.table::fread()` and returns
+#' Reads a correlation table from a CSV file using `read.csv2` and returns
 #' a clean names `tibble`.
 #'
 #' @param path Character. Full path to the `.csv` file to read.
@@ -92,10 +92,48 @@ download_correlation_table <- function(url) {
 #' @keywords internal
 #' @noRd
 read_correlation_table <- function(path) {
-  data.table::fread(
+  read.csv2(
     path,
-    encoding = "Latin-1"
+    fileEncoding = "Latin1",
+    stringsAsFactors = FALSE
   ) |>
     janitor::clean_names() |>
     tibble::as_tibble()
+}
+
+#' Rename selected columns if present in a data frame
+#'
+#' This internal helper function checks whether specific column names are present in the input tibble
+#' and renames them to standardized English equivalents if found. It is meant to
+#' be used after calling read_correlation_table.
+#'
+#' @param df A `data.frame` or `tibble`. The input data containing original column names.
+#'
+#' @return A `data.frame` or `tibble` with selected columns renamed, if present. Columns not listed in the
+#' renaming map remain unchanged.
+rename_columns_if_present <- function(df) {
+
+  name_map <- c(
+    "co_pais" = "country_code",
+    "co_pais_ison3" = "country_code_ison3",
+    "co_pais_isoa3" = "country_code_isoa3",
+    "no_pais" = "country_name_pt",
+    "no_pais_ing" = "country_name",
+    "no_pais_esp" = "country_name_es",
+    "co_uf" = "state_code",
+    "sg_uf" = "state",
+    "no_uf" = "state_name",
+    "co_ncm" = "ncm",
+    "no_ncm_ing" = "ncm_description"
+    )
+
+  cols_to_rename <- intersect(names(name_map), names(df))
+
+  if (length(cols_to_rename) == 0) {
+    return(df)  # No matching columns, return unchanged
+  }
+
+  names(df)[names(df) %in% cols_to_rename] <- name_map[cols_to_rename]
+
+  return(df)
 }
