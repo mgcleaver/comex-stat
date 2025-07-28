@@ -24,8 +24,8 @@ cs_base_url <- "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatis
 #' @noRd
 find_table_link <- function(name) {
 
-  if(length(name) != 1) {
-    stop("Please provide a ")
+  if (length(name) != 1 || !is.character(name)) {
+    stop("`name` must be a single character string (e.g., 'PAIS').")
   }
 
   page <- rvest::read_html(cs_base_url)
