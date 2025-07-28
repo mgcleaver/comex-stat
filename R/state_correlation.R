@@ -2,9 +2,8 @@
 #'
 #' A dataset containing correlations between selected variables.
 #'
-#' @format A tibble with 34 rows and 3 variables:
+#' @format A tibble with 34 rows and 2 variables:
 #' \describe{
-#'   \item{state_code}{State code (integer)}
 #'   \item{state}{State abbreviation (character)}
 #'   \item{state_name}{Full state name (character)}
 #' }
