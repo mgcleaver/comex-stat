@@ -31,8 +31,7 @@ create_cs_db <- function(
 ) {
 
   # Link for raw data
-  link_cs <-
-    "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
+  link_cs <- cs_base_url
 
   options(timeout = timeout)
 
@@ -137,8 +136,7 @@ update_cs_db <- function(
     timeout = 2000
 ) {
 
-  link_cs <-
-    "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
+  link_cs <- cs_base_url
 
   options(timeout = timeout)
 
