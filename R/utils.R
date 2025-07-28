@@ -56,7 +56,7 @@ find_table_link <- function(name) {
 #' @keywords internal
 #' @noRd
 download_correlation_table <- function(url) {
-  dest_dir <- file.path(withr::local_tempdir(), "temp.csv")
+  dest_dir <- tempfile(fileext = ".csv")
 
   resp <- httr::GET(url, httr::write_disk(dest_dir, overwrite = TRUE), httr::progress())
 
