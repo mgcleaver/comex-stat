@@ -64,7 +64,7 @@ download_correlation_table <- function(url) {
     stop("Download error: ", httr::http_status(resp)$message)
   }
 
-  if (!file.exists(path) || file.info(path)$size == 0) {
+  if (!file.exists(dest_dir) || file.info(dest_dir)$size == 0) {
     stop("Download failed: file doesn't exist or empty.")
   }
   message(glue::glue("✔ Download complete\n"))
