@@ -11,6 +11,6 @@
 #' @source \url{https://balanca.economia.gov.br/balanca/bd/tabelas/UF.csv}
 #'
 #' @examples
-#' data(state_correlation)
-#' head(state_correlation)
-"state_correlation"
+#' data(state_corr)
+#' head(state_corr)
+"state_corr"
