@@ -124,7 +124,9 @@ rename_columns_if_present <- function(df) {
     "sg_uf" = "state",
     "no_uf" = "state_name",
     "co_ncm" = "ncm",
-    "no_ncm_ing" = "ncm_description"
+    "no_ncm_ing" = "ncm_description",
+    "no_ncm_por" = "ncm_description_pt",
+    "no_ncm_esp" = "ncm_description_es"
     )
 
   cols_to_rename <- intersect(names(name_map), names(df))
