@@ -22,3 +22,18 @@ ncm_corr <- process_corr_tables("NCM") %>%
   distinct() %>%
   mutate(ncm = stringr::str_pad(ncm, 8, side = 'left', pad = '0'))
 usethis::use_data(ncm_corr, internal = FALSE, overwrite = TRUE)
+
+# get ncm cuci correlation table
+cuci_corr <- process_corr_tables("NCM_CUCI")
+usethis::use_data(cuci_corr, internal = FALSE, overwrite = TRUE)
+
+# get ncm isic correlation table
+isic_corr <- process_corr_tables("NCM_ISIC")
+
+# get ncm cgce correlation table
+cgce_corr <- process_corr_tables("NCM_CGCE")
+
+# get unit correlation table
+unit_corr <- process_corr_tables("NCM_UNIDADE")
+
+
