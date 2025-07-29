@@ -139,3 +139,19 @@ rename_columns_if_present <- function(df) {
 
   return(df)
 }
+
+#' Process a correlation table by name
+#'
+#' Helper function to get correlation tables from the Comex Stat portal
+#'
+#' @param name A character string indicating the internal name of the correlation table to process.
+#'
+#' @return A processed correlation table as a tibble or data frame.
+#'
+#' @noRd
+process_corr_tables <- function(name) {
+  link_table <- find_table_link(name)
+  download_path <- download_correlation_table(link_table)
+  read_correlation_table(download_path) |>
+    rename_columns_if_present()
+}
