@@ -126,7 +126,23 @@ rename_columns_if_present <- function(df) {
     "co_ncm" = "ncm",
     "no_ncm_ing" = "ncm_description",
     "no_ncm_por" = "ncm_description_pt",
-    "no_ncm_esp" = "ncm_description_es"
+    "no_ncm_esp" = "ncm_description_es",
+    "co_isic_classe" = "isic_class_code",
+    "no_isic_classe" = "isic_class_desc_pt",
+    "no_isic_classe_ing" = "isic_class_desc",
+    "no_isic_classe_esp" = "isic_class_desc_es",
+    "co_isic_grupo" = "isic_group_code",
+    "no_isic_grupo" = "isic_group_desc_pt",
+    "no_isic_grupo_ing" = "isic_group_desc",
+    "no_isic_grupo_esp"    = "isic_group_desc_es",
+    "co_isic_divisao"      = "isic_division_code",
+    "no_isic_divisao"      = "isic_division_desc_pt",
+    "no_isic_divisao_ing"  = "isic_division_desc",
+    "no_isic_divisao_esp"  = "isic_division_desc_es",
+    "co_isic_secao"        = "isic_section_code",
+    "no_isic_secao"        = "isic_section_desc_pt",
+    "no_isic_secao_ing"    = "isic_section_desc",
+    "no_isic_secao_esp"    = "isic_section_desc_es"
     )
 
   cols_to_rename <- intersect(names(name_map), names(df))
