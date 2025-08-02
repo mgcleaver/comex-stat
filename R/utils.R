@@ -134,15 +134,19 @@ rename_columns_if_present <- function(df) {
     "co_isic_grupo" = "isic_group_code",
     "no_isic_grupo" = "isic_group_desc_pt",
     "no_isic_grupo_ing" = "isic_group_desc",
-    "no_isic_grupo_esp"    = "isic_group_desc_es",
-    "co_isic_divisao"      = "isic_division_code",
-    "no_isic_divisao"      = "isic_division_desc_pt",
-    "no_isic_divisao_ing"  = "isic_division_desc",
-    "no_isic_divisao_esp"  = "isic_division_desc_es",
-    "co_isic_secao"        = "isic_section_code",
-    "no_isic_secao"        = "isic_section_desc_pt",
-    "no_isic_secao_ing"    = "isic_section_desc",
-    "no_isic_secao_esp"    = "isic_section_desc_es"
+    "no_isic_grupo_esp" = "isic_group_desc_es",
+    "co_isic_divisao" = "isic_division_code",
+    "no_isic_divisao" = "isic_division_desc_pt",
+    "no_isic_divisao_ing" = "isic_division_desc",
+    "no_isic_divisao_esp" = "isic_division_desc_es",
+    "co_isic_secao" = "isic_section_code",
+    "no_isic_secao" = "isic_section_desc_pt",
+    "no_isic_secao_ing" = "isic_section_desc",
+    "no_isic_secao_esp" = "isic_section_desc_es",
+    "co_cgce_n3" = "bec_n3_code",
+    "no_cgce_n3" = "bec_n3_desc_pt",
+    "no_cgce_n3_ing" = "bec_n3_desc",
+    "no_cgce_n3_esp" = "bec_n3_desc_es"
     )
 
   cols_to_rename <- intersect(names(name_map), names(df))

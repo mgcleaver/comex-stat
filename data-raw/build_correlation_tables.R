@@ -27,15 +27,19 @@ usethis::use_data(ncm_corr, internal = FALSE, overwrite = TRUE)
 isic_corr <- process_corr_tables("NCM_ISIC")
 usethis::use_data(isic_corr, internal = FALSE, overwrite = TRUE)
 
-# get ncm cuci correlation table
-cuci_corr <- process_corr_tables("NCM_CUCI")
-usethis::use_data(cuci_corr, internal = FALSE, overwrite = TRUE)
-
-# get ncm cgce correlation table
-cgce_corr <- process_corr_tables("NCM_CGCE")
+# get Comex Stat's broad economic category table
+bec_corr <- process_corr_tables("NCM_CGCE")
 usethis::use_data(cuci_corr, internal = FALSE, overwrite = TRUE)
 
 # get unit correlation table
 unit_corr <- process_corr_tables("NCM_UNIDADE")
 usethis::use_data(cuci_corr, internal = FALSE, overwrite = TRUE)
+
+# get ncm cuci correlation table
+cuci_corr <- process_corr_tables("NCM_CUCI") %>%
+  select(
+    co_cuci_item, no_cuci_item, no_cuci_sub, no_cuci_grupo,
+    no_cuci_divisao, no_cuci_sec
+  )
+usethis::use_data(cuci_corr, internal = TRUE, overwrite = TRUE)
 
