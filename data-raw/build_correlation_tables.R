@@ -1,40 +1,44 @@
 # load package functions and libraries
 
 devtools::load_all()
-library(dplyr)
 
 # Get Comex Stat's state table
 state_table <- process_table("UF")
 state_table <- state_table |>
-  select(state, state_name)
+  dplyr::select(state, state_name) |>
+  tibble::as_tibble()
 usethis::use_data(state_table, internal = FALSE, overwrite = TRUE)
 
 # Get Comex Stat's country table
-country_table <- process_table("PAIS")
+country_table <- process_table("PAIS") |>
+  tibble::as_tibble()
 usethis::use_data(country_table, internal = FALSE, overwrite = TRUE)
 
 # Get Comex Stat's NCM mapping table
 ncm_table <- process_table("NCM") |>
-  select(ncm, unit_code, co_cuci_item, bec_n3_code, co_siit, isic_class_code,
+  dplyr::select(ncm, unit_code, co_cuci_item, bec_n3_code, co_siit, isic_class_code,
          ncm_description, ncm_description_pt, ncm_description_es) |>
-  distinct() |>
-  mutate(ncm = stringr::str_pad(ncm, 8, side = 'left', pad = '0'))
+  dplyr::distinct() |>
+  dplyr::mutate(ncm = stringr::str_pad(ncm, 8, side = 'left', pad = '0')) |>
+  tibble::as_tibble()
 usethis::use_data(ncm_table, internal = FALSE, overwrite = TRUE)
 
 # Get Comex Stat's international standard industrial classification table
-isic_table <- process_table("NCM_ISIC")
+isic_table <- process_table("NCM_ISIC") |>
+  tibble::as_tibble()
 usethis::use_data(isic_table, internal = FALSE, overwrite = TRUE)
 
 # Get Comex Stat's broad economic category table
-bec_table <- process_table("NCM_CGCE")
+bec_table <- process_table("NCM_CGCE") |>
+  tibble::as_tibble()
 usethis::use_data(bec_table, internal = FALSE, overwrite = TRUE)
 
 # Get Comex Stat's unit table and build english descriptions
 unit_table <- process_table("NCM_UNIDADE") |>
-  mutate(
+  dplyr::mutate(
     no_unid = stringr::str_to_sentence(no_unid),
     sg_unid = stringr::str_squish(sg_unid),
-    unit_description = case_when(
+    unit_description = dplyr::case_when(
       no_unid == "Quilograma liquido" ~ "Net kilogram",
       no_unid == "Numero (unidade)" ~ "Number (unit)",
       no_unid == "Milheiro" ~ "Thousand units",
@@ -51,14 +55,15 @@ unit_table <- process_table("NCM_UNIDADE") |>
       no_unid == "Bilhoes de unidades internacionais" ~ "Billion international units",
       no_unid == "Quilograma bruto" ~ "Gross kilogram",
       TRUE ~ NA_character_)
-  )
+  ) |>
+  tibble::as_tibble()
 usethis::use_data(unit_table, internal = TRUE, overwrite = TRUE)
 
 # Get Comex Stat's CUCI table - portuguese only
 cuci_table <- process_table("NCM_CUCI") |>
-  select(
+  dplyr::select(
     co_cuci_item, no_cuci_item, no_cuci_sub, no_cuci_grupo,
     no_cuci_divisao, no_cuci_sec
-  )
+  ) |>
+  tibble::as_tibble()
 usethis::use_data(cuci_table, internal = TRUE, overwrite = TRUE)
-
