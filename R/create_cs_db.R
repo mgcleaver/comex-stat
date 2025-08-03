@@ -264,7 +264,7 @@ update_cs_db <- function(
     years_to_download,
     official_last_year_update,
     negate = TRUE
-  ) %>%
+  ) |>
     any()
 
   if(test_db_export && test_db_import && !teste_anos_anteriores) {

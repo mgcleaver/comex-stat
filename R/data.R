@@ -1,9 +1,9 @@
-#' Country Correlation Table
+#' Comex Stat's Country Table
 #'
 #' A table containing country codes and names
 #'
-#' @format A tibble with `r format(nrow(country_corr), big.mark = ",")` rows and
-#' `r format(ncol(country_corr))` variables:
+#' @format A tibble with `r format(nrow(country_table), big.mark = ",")` rows and
+#' `r format(ncol(country_table))` variables:
 #' \describe{
 #'   \item{country_code}{Brazilian country code (character)}
 #'   \item{country_code_ison3}{ISON3 country code (character)}
@@ -16,15 +16,16 @@
 #' @source \url{https://balanca.economia.gov.br/balanca/bd/tabelas/PAIS.csv}
 #'
 #' @examples
-#' data(country_corr)
-#' head(country_corr)
-"country_corr"
+#' data(country_table)
+#' head(country_table)
+"country_table"
 
-#' State Correlation Table
+#' Comex Stat's State Table
 #'
 #' A table containing state abbreviations and full names.
 #'
-#' @format A tibble with 34 rows and 2 variables:
+#' @format A tibble with `r format(nrow(state_table), big.mark = ",")` rows and
+#' `r format(ncol(state_table))` variables::
 #' \describe{
 #'   \item{state}{State abbreviation (character)}
 #'   \item{state_name}{Full state name (character)}
@@ -33,40 +34,42 @@
 #' @source \url{https://balanca.economia.gov.br/balanca/bd/tabelas/UF.csv}
 #'
 #' @examples
-#' data(state_corr)
-#' head(state_corr)
-"state_corr"
+#' data(state_table)
+#' head(state_table)
+"state_table"
 
-#' NCM Correlation Table
+#' Comex Stat's NCM Mapping Table
 #'
 #' A table containing ncm and other product category correlations.
 #'
-#' @format A tibble with 13,722 rows and 9 variables:
+#' @format A tibble with `r format(nrow(ncm_table), big.mark = ",")` rows and
+#' `r format(ncol(ncm_table))` variables:
 #' \describe{
-#'   \item{ncm}{Product code (character)}
-#'   \item{co_unid}{Unit code (integer)}
-#'   \item{co_cuci}{CUCI code (character)}
-#'   \item{co_cgce_n3)}{CGCE code (integer)}
-#'   \item{co_siit}{SIIT code (integer)}
-#'   \item{isic_class_code}{ISIC class code (integer)}
-#'   \item{ncm_description}{Product description (integer)}
-#'   \item{ncm_description_pt}{Product description portuguese (integer)}
-#'   \item{ncm_description_es}{Product description spanish (integer)}
+#'   \item{ncm}{NCM Product code}
+#'   \item{unit_code}{Unit code for NCM}
+#'   \item{co_cuci_item}{CUCI item code}
+#'   \item{bec_n3_code)}{Broad economic category code}
+#'   \item{co_siit}{SIIT code}
+#'   \item{isic_class_code}{ISIC class code}
+#'   \item{ncm_description}{Product description}
+#'   \item{ncm_description_pt}{Product description portuguese}
+#'   \item{ncm_description_es}{Product description spanish}
 #' }
 #'
 #' @source \url{https://balanca.economia.gov.br/balanca/bd/tabelas/NCM.csv}
 #'
 #' @examples
-#' data(ncm_corr)
-#' head(ncm_corr)
-"ncm_corr"
+#' data(ncm_table)
+#' head(ncm_table)
+"ncm_table"
 
-#' ISIC category codes and descriptions
+#' Comex Stat's International Standard Industrial Classification (ISIC) category
+#' codes and descriptions table
 #'
 #' A table containing ISIC category codes and descriptions.
 #'
-#' @format A tibble with `r format(nrow(isic_corr), big.mark = ",")` rows and
-#' `r format(ncol(isic_corr))` variables:
+#' @format A tibble with `r format(nrow(isic_table), big.mark = ",")` rows and
+#' `r format(ncol(isic_table))` variables:
 #' \describe{
 #'   \item{isic_class_code}{ISIC class code.}
 #'   \item{isic_class_desc_pt}{Description of ISIC class in Portuguese.}
@@ -89,6 +92,75 @@
 #' @source \url{https://balanca.economia.gov.br/balanca/bd/tabelas/NCM_ISIC.csv}
 #'
 #' @examples
-#' data(isic_corr)
-#' head(isic_corr)
-"isic_corr"
+#' data(isic_table)
+#' head(isic_table)
+"isic_table"
+
+#' Comex Stat's Broad Economic Category (BEC) codes and descriptions table
+#'
+#' A table containing BEC codes and descriptions.
+#'
+#' @format A tibble with `r format(nrow(bec_table), big.mark = ",")` rows and
+#' `r format(ncol(bec_table))` variables:
+#' \describe{
+#'   \item{bec_n3_code}{BEC n3 code.}
+#'   \item{bec_n3_desc_pt}{Description of BEC n3 in Portuguese.}
+#'   \item{bec_n3_desc}{Description of BEC n3 in English.}
+#'   \item{bec_n3_desc_es}{Description of BEC n3 in Spanish.}
+#'   \item{bec_n2_code}{BEC n2 code.}
+#'   \item{bec_n2_desc_pt}{Description of BEC n2 in Portuguese.}
+#'   \item{bec_n2_desc}{Description of BEC n2 in English .}
+#'   \item{bec_n2_desc_es}{Description of BEC n2 in Spanish.}
+#'   \item{bec_n1_code}{BEC n1 code.}
+#'   \item{bec_n1_desc_pt}{Description of BEC n1 in Portuguese.}
+#'   \item{bec_n1_desc}{Description of BEC n1 in English.}
+#'   \item{bec_n1_desc_es}{Description of BEC n1 in Spanish.}
+#' }
+#'
+#' @source \url{https://balanca.economia.gov.br/balanca/bd/tabelas/NCM_CGCE.csv}
+#'
+#' @examples
+#' data(bec_table)
+#' head(bec_table)
+"bec_table"
+
+#' Comex Stat's unit code and description table
+#'
+#' A table containing unit codes and descriptions
+#'
+#' @format A tibble with `r format(nrow(unit_table), big.mark = ",")` rows and
+#' `r format(ncol(unit_table))` variables:
+#' \describe{
+#'   \item{unit_code}{NCM unit code.}
+#'   \item{no_unid}{Unit description in Portuguese.}
+#'   \item{sg_unid}{Unit abbreviation in Portuguese.}
+#'   \item{unit_description}{Unit description in English.}
+#' }
+#'
+#' @source \url{https://balanca.economia.gov.br/balanca/bd/tabelas/NCM_UNIDADE.csv}
+#' @keywords internal
+#' @name unit_table
+#' @docType data
+NULL
+
+#' Comex Stat's CUCI code and description table - only in portuguese
+#'
+#' A table containing unit codes and descriptions
+#'
+#' @format A tibble with `r format(nrow(cuci_table), big.mark = ",")` rows and
+#' `r format(ncol(cuci_table))` variables:
+#' \describe{
+#'   \item{no_cuci_item}{CUCI item code}
+#'   \item{no_cuci_item}{CUCI item description in Portuguese.}
+#'   \item{no_cuci_sub}{CUCI subgroup description in Portuguese.}
+#'   \item{no_cuci_grupo}{CUCI group description in Portuguese.}
+#'   \item{no_cuci_divisao}{CUCI division description in Portuguese.}
+#'   \item{no_cuci_sec}{CUCI section description in Portuguese.}
+#' }
+#'
+#' @source \url{https://balanca.economia.gov.br/balanca/bd/tabelas/NCM_CUCI.csv}
+#' @keywords internal
+#' @name cuci_table
+#' @docType data
+NULL
+

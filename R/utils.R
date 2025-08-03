@@ -146,21 +146,27 @@ rename_columns_if_present <- function(df) {
     "co_cgce_n3" = "bec_n3_code",
     "no_cgce_n3" = "bec_n3_desc_pt",
     "no_cgce_n3_ing" = "bec_n3_desc",
-    "no_cgce_n3_esp" = "bec_n3_desc_es"
+    "no_cgce_n3_esp" = "bec_n3_desc_es",
+    "co_cgce_n2" = "bec_n2_code",
+    "no_cgce_n2" = "bec_n2_desc_pt",
+    "no_cgce_n2_ing" = "bec_n2_desc",
+    "no_cgce_n2_esp" = "bec_n2_desc_es",
+    "co_cgce_n1" = "bec_n1_code",
+    "no_cgce_n1" = "bec_n1_desc_pt",
+    "no_cgce_n1_ing" = "bec_n1_desc",
+    "no_cgce_n1_esp" = "bec_n1_desc_es",
+    "co_unid" = "unit_code"
     )
 
-  cols_to_rename <- intersect(names(name_map), names(df))
-
-  if (length(cols_to_rename) == 0) {
-    return(df)  # No matching columns, return unchanged
+  rename_map <- name_map[names(name_map) %in% names(df)]
+  for (old_name in names(rename_map)) {
+    names(df)[names(df) == old_name] <- rename_map[[old_name]]
   }
-
-  names(df)[names(df) %in% cols_to_rename] <- name_map[cols_to_rename]
 
   return(df)
 }
 
-#' Process a correlation table by name
+#' Process a lookup/mapping table by name
 #'
 #' Helper function to get correlation tables from the Comex Stat portal
 #'
@@ -169,7 +175,7 @@ rename_columns_if_present <- function(df) {
 #' @return A processed correlation table as a tibble or data frame.
 #'
 #' @noRd
-process_corr_tables <- function(name) {
+process_table <- function(name) {
   link_table <- find_table_link(name)
   download_path <- download_correlation_table(link_table)
   read_correlation_table(download_path) |>
