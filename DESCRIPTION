@@ -1,0 +1,17 @@
+Package: comexstat
+Title: Tools to download, update and query the Comex Stat Dataset
+Version: 0.0.0.9000
+Authors@R: 
+    person("Miguel", "Cleaver", , "miguel.cleaver@hotmail.com", role = c("aut", "cre"))
+Description: Provides tools to download and work with data from Comex Stat, the Brazilian
+    foreign trade database. This package simplifies the process of storing and
+    querying trade data from Comex Stat.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 3.5)
+LazyData: true
+Imports: 
+    tibble
