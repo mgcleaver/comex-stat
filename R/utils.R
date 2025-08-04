@@ -1,5 +1,6 @@
 #' Comex Stat base URL
 #' @keywords internal
+#' @noRd
 cs_base_url <- "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
 
 #' Find URL of a correlation table on the Comex Stat website
@@ -67,7 +68,7 @@ download_correlation_table <- function(url) {
   if (!file.exists(dest_dir) || file.info(dest_dir)$size == 0) {
     stop("Download failed: file doesn't exist or empty.")
   }
-  message(glue::glue("✔ Download complete\n"))
+  message(glue::glue("Download complete\n"))
   return(dest_dir)
 }
 
@@ -92,7 +93,7 @@ download_correlation_table <- function(url) {
 #' @keywords internal
 #' @noRd
 read_correlation_table <- function(path) {
-  read.csv2(
+  utils::read.csv2(
     path,
     fileEncoding = "Latin1",
     stringsAsFactors = FALSE
@@ -111,6 +112,9 @@ read_correlation_table <- function(path) {
 #'
 #' @return A `data.frame` or `tibble` with selected columns renamed, if present. Columns not listed in the
 #' renaming map remain unchanged.
+#'
+#' @keywords internal
+#' @noRd
 rename_columns_if_present <- function(df) {
 
   name_map <- c(
@@ -173,7 +177,7 @@ rename_columns_if_present <- function(df) {
 #' @param name A character string indicating the internal name of the correlation table to process.
 #'
 #' @return A processed correlation table as a tibble or data frame.
-#'
+#' @keywords internal
 #' @noRd
 process_table <- function(name) {
   link_table <- find_table_link(name)

@@ -14,4 +14,17 @@ Depends:
     R (>= 3.5)
 LazyData: true
 Imports: 
-    tibble
+    arrow,
+    data.table,
+    dplyr,
+    glue,
+    httr,
+    janitor,
+    jsonlite,
+    purrr,
+    rvest,
+    stringr,
+    tibble,
+    tidyr,
+    utils,
+    withr

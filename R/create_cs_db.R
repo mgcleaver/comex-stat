@@ -98,7 +98,7 @@ create_cs_db <- function(
       schemas = df_schemas)
     )
 
-  message(glue::glue("✔ Database written to: {output_path}\n"))
+  message(glue::glue("Database written to: {output_path}\n"))
 
 }
 
@@ -255,11 +255,10 @@ update_cs_db <- function(
   years_to_exclude_from_download <-
     years_to_exclude_from_download[!years_to_exclude_from_download %in% local_last_year_update:official_last_year_update]
 
-  # Selecionar anos que serão atualizados/baixados nas base
+  # choose year to download
   years_to_download <- setdiff(desired_data, years_to_exclude_from_download)
 
-  # testa se foram solicitados anos anteriores aos que estão disponíveis
-  # na base local
+  # checks if desired year are already in database
   teste_anos_anteriores <- stringr::str_detect(
     years_to_download,
     official_last_year_update,
@@ -268,19 +267,18 @@ update_cs_db <- function(
     any()
 
   if(test_db_export && test_db_import && !teste_anos_anteriores) {
-    # se a condição for verdadeira, a base está atualizada
     stop("The database is already updated")
   }
 
   message(glue::glue("Local Comex Stat database is outdated. Updating...\n"))
 
-  # cria regex para selecão de links
+  # years to download
   years_to_download <- paste0(years_to_download, collapse = "|")
 
-  # obter dados html de link_cs
+  # get html data
   page <- rvest::read_html(link_cs)
 
-  # obter links relevantes para download dos dados ano a ano
+  # get relevant links for download
   links_download <- page |>
     rvest::html_elements("table tr td a") |>
     rvest::html_attr("href") |>
@@ -296,5 +294,5 @@ update_cs_db <- function(
       db_dirs = paths,
       schemas = df_schemas)
     )
-  message("✔ Update complete\n")
+  message("Update complete\n")
 }

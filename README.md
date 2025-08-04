@@ -20,7 +20,7 @@ columns:
 - fob value (in dollars)
 - cif value (only for imports and in dollars)
 - kg (net weight in kilograms)
-- qt (quantity)
+- qty (quantity)
 
 ## Installation
 

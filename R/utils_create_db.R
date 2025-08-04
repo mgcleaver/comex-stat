@@ -21,7 +21,7 @@ create_schema <- function(category = c("export", "import")) {
       country_code = arrow::int32(),
       fob_value = arrow::int64(),
       kg = arrow::int64(),
-      qt = arrow::int64()
+      qty = arrow::int64()
     ))
   }
 
@@ -36,7 +36,7 @@ create_schema <- function(category = c("export", "import")) {
       fob_value = arrow::int64(),
       cif_value = arrow::int64(), # exportações não tem esse dado
       kg = arrow::int64(),
-      qt = arrow::int64()
+      qty = arrow::int64()
     ))
   }
 }
@@ -159,11 +159,11 @@ read_imports <- function(path) {
     janitor::clean_names() |>
     dplyr::rename(
       year = co_ano, month = co_mes, ncm = co_ncm, state = sg_uf_ncm,
-      country_code = co_pais, kg = kg_liquido, qt = qt_estat, fob_value = vl_fob
+      country_code = co_pais, kg = kg_liquido, qty = qt_estat, fob_value = vl_fob
     ) |>
-    dplyr::mutate(across(c(fob_value, kg, qt, vl_frete, vl_seguro), as.numeric)) |>
+    dplyr::mutate(dplyr::across(c(fob_value, kg, qty, vl_frete, vl_seguro), as.numeric)) |>
     dplyr::group_by(year, month, ncm, state, country_code) |>
-    dplyr::summarise(across(c(fob_value, vl_seguro, vl_frete, kg, qt), sum), .groups = "drop") |>
+    dplyr::summarise(dplyr::across(c(fob_value, vl_seguro, vl_frete, kg, qty), sum), .groups = "drop") |>
     dplyr::mutate(
       cif_value = fob_value + vl_seguro + vl_frete,
       ncm = stringr::str_pad(ncm, 8, "left", "0")
@@ -193,11 +193,11 @@ read_exports <- function(path) {
     janitor::clean_names() |>
     dplyr::rename(
       year = co_ano, month = co_mes, ncm = co_ncm, state = sg_uf_ncm,
-      country_code = co_pais, kg = kg_liquido, qt = qt_estat, fob_value = vl_fob
+      country_code = co_pais, kg = kg_liquido, qty = qt_estat, fob_value = vl_fob
     ) |>
-    dplyr::mutate(across(c(fob_value, kg, qt), as.numeric)) |>
+    dplyr::mutate(dplyr::across(c(fob_value, kg, qty), as.numeric)) |>
     dplyr::group_by(year, month, ncm, state, country_code) |>
-    dplyr::summarise(across(c(fob_value, kg, qt), sum), .groups = "drop") |>
+    dplyr::summarise(dplyr::across(c(fob_value, kg, qty), sum), .groups = "drop") |>
     dplyr::mutate(ncm = stringr::str_pad(ncm, 8, "left", "0")) |>
     dplyr::arrange(month)
 }
