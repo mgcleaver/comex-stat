@@ -45,9 +45,16 @@ create_cs_db(dest_dir = "database", initial_year = 2024)
 # update Comex Stat database
 update_cs_db(dest_dir = "database")
 
-# get total exports by year
-open_dataset("database") %>% 
+# query total exports by year from local database
+open_dataset("database/export") %>% 
   group_by(year) %>% 
+  summarise(value = sum(fob_value)) %>% 
+  ungroup() %>% 
+  collect()
+  
+# query total imports by year and month from local database
+open_dataset("database/import") %>% 
+  group_by(year, month) %>% 
   summarise(value = sum(fob_value)) %>% 
   ungroup() %>% 
   collect()
