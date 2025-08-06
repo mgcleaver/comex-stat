@@ -98,7 +98,7 @@ create_cs_db <- function(
       schemas = df_schemas)
     )
 
-  message(glue::glue("Database written to: {output_path}\n"))
+  message(glue::glue("Database written to: {dest_dir}\n"))
 
 }
 
