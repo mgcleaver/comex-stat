@@ -1,3 +1,12 @@
+utils::globalVariables(
+  c("country_table",
+    "brazilian_states",
+    "ncm_table",
+    "unit_code",
+    "unit_table"
+    )
+  )
+
 #' Comex Stat base URL
 #' @keywords internal
 #' @noRd

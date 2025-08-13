@@ -5,7 +5,7 @@
 \alias{ncm_table}
 \title{Comex Stat's NCM Mapping Table}
 \format{
-A tibble with 13,722 rows and
+A tibble with 13,724 rows and
 9 variables:
 \describe{
 \item{ncm}{NCM Product code}

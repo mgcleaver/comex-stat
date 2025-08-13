@@ -16,20 +16,6 @@
 #' @return A tibble or data frame with the unit_description. In case drop_key =
 #' `FALSE`, then the unit_code will also be present.
 #'
-#' @examples
-#' # Example input data
-#' df <- tibble::tibble(
-#'   ncm = c("01012100", "01012900"),
-#'   value = c(100, 200)
-#' )
-#'
-#' # Add unit descriptions in English
-#' add_units(df, lang = "en")
-#'
-#' # Keep the unit_code
-#' add_units(df, lang = "pt", drop_key = FALSE)
-#' }
-#'
 #' @export
 add_units <- function(
     x,
@@ -41,8 +27,10 @@ add_units <- function(
   name_col <- switch(
     lang,
     en = "unit_description",
-    pt = "no_unid"
+    pt = "unit_description_pt"
   )
+
+  utils::data("ncm_table", package = "comexstat", envir = environment())
 
   temp <- dplyr::left_join(
     x,

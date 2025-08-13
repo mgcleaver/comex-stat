@@ -29,13 +29,6 @@ based on the \code{country_code} column.
 This function performs a left join between the input data frame and an
 external reference table \code{country_table},
 adding a country name column in the desired language (\code{en}, \code{pt}, or \code{es}).
-
-The function uses a package reference table called \code{country_table}
-that must contain the columns:
-\code{country_code}, \code{country_name}, \code{country_name_pt}, and \code{country_name_es}.
-It uses \code{\link[dplyr:mutate-joins]{dplyr::left_join()}} and \code{\link[dplyr:select]{dplyr::select()}} internally.
-
-If the column \code{country_code} is missing from the input data frame, the function will raise an error during the join.
 }
 \examples{
 df <- data.frame(country_code = c(20, 23, 40))
