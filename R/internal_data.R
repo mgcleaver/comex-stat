@@ -5,7 +5,7 @@
 #' @format A tibble with 15 rows and 4 columns:
 #' \describe{
 #'   \item{unit_code}{NCM unit code.}
-#'   \item{no_unid}{Unit description in Portuguese.}
+#'   \item{unit_description_pt}{Unit description in Portuguese.}
 #'   \item{sg_unid}{Unit abbreviation in Portuguese.}
 #'   \item{unit_description}{Unit description in English.}
 #' }

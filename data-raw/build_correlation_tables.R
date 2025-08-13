@@ -56,7 +56,8 @@ unit_table <- process_table("NCM_UNIDADE") |>
       no_unid == "Quilograma bruto" ~ "Gross kilogram",
       TRUE ~ NA_character_)
   ) |>
-  tibble::as_tibble()
+  tibble::as_tibble() |>
+  dplyr::rename(unit_description_pt = no_unid)
 usethis::use_data(unit_table, internal = TRUE, overwrite = TRUE)
 
 # Get Comex Stat's CUCI table - portuguese only

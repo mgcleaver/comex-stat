@@ -1,0 +1,62 @@
+#' Add Unit Descriptions to Comex Stat data
+#'
+#' This helper function matches NCM codes with their corresponding unit codes
+#' and then appends the unit description in the specified language.
+#'
+#' The function uses external `ncm_table` and internal `unit_table`
+#' data stored in the package.
+#'
+#' @param x A data frame or tibble containing a column named `ncm`.
+#' @param lang A string indicating the desired language for the unit description.
+#'   Must be `"en"` (English) or `"pt"` (Portuguese).
+#'   Defaults to `"en"`.
+#' @param drop_key Logical. If `TRUE` (default), the `unit_code` column is
+#' not included in the final table.
+#'
+#' @return A tibble or data frame with the unit_description. In case drop_key =
+#' `FALSE`, then the unit_code will also be present.
+#'
+#' @examples
+#' # Example input data
+#' df <- tibble::tibble(
+#'   ncm = c("01012100", "01012900"),
+#'   value = c(100, 200)
+#' )
+#'
+#' # Add unit descriptions in English
+#' add_units(df, lang = "en")
+#'
+#' # Keep the unit_code
+#' add_units(df, lang = "pt", drop_key = FALSE)
+#' }
+#'
+#' @export
+add_units <- function(
+    x,
+    lang = c("en","pt"),
+    drop_key = TRUE
+) {
+  lang <- match.arg(lang)
+
+  name_col <- switch(
+    lang,
+    en = "unit_description",
+    pt = "no_unid"
+  )
+
+  temp <- dplyr::left_join(
+    x,
+    dplyr::select(ncm_table, ncm, unit_code),
+    by = "ncm"
+  ) |>
+    dplyr::left_join(
+      dplyr::select(unit_table, unit_code, dplyr::all_of(name_col)),
+      by = "unit_code"
+    )
+
+  if (drop_key) {
+    temp <- dplyr::select(temp, -unit_code)
+  }
+
+  return(temp)
+}

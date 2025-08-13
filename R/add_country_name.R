@@ -18,14 +18,6 @@
 #' @return A data frame with a new column for the country name in the selected
 #' language.
 #'
-#' @details
-#' The function uses a package reference table called `country_table`
-#' that must contain the columns:
-#' `country_code`, `country_name`, `country_name_pt`, and `country_name_es`.
-#' It uses [dplyr::left_join()] and [dplyr::select()] internally.
-#'
-#' If the column `country_code` is missing from the input data frame, the function will raise an error during the join.
-#'
 #' @examples
 #' df <- data.frame(country_code = c(20, 23, 40))
 #' add_country_name(df, lang = "pt")
