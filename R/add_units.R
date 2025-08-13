@@ -36,11 +36,13 @@ add_units <- function(
     x,
     dplyr::select(ncm_table, ncm, unit_code),
     by = "ncm"
-  ) |>
-    dplyr::left_join(
-      dplyr::select(unit_table, unit_code, dplyr::all_of(name_col)),
-      by = "unit_code"
-    )
+  )
+
+  temp <- dplyr::left_join(
+    temp,
+    dplyr::select(unit_table, unit_code, dplyr::all_of(name_col)),
+    by = "unit_code"
+  )
 
   if (drop_key) {
     temp <- dplyr::select(temp, -unit_code)

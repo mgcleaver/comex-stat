@@ -32,39 +32,3 @@ usethis::use_data(isic_table, internal = FALSE, overwrite = TRUE)
 bec_table <- process_table("NCM_CGCE") |>
   tibble::as_tibble()
 usethis::use_data(bec_table, internal = FALSE, overwrite = TRUE)
-
-# Get Comex Stat's unit table and build english descriptions
-unit_table <- process_table("NCM_UNIDADE") |>
-  dplyr::mutate(
-    no_unid = stringr::str_to_sentence(no_unid),
-    sg_unid = stringr::str_squish(sg_unid),
-    unit_description = dplyr::case_when(
-      no_unid == "Quilograma liquido" ~ "Net kilogram",
-      no_unid == "Numero (unidade)" ~ "Number (unit)",
-      no_unid == "Milheiro" ~ "Thousand units",
-      no_unid == "Pares" ~ "Pairs",
-      no_unid == "Metro" ~ "Meter",
-      no_unid == "Metro quadrado" ~ "Square meter",
-      no_unid == "Metro cubico" ~ "Cubic meter",
-      no_unid == "Litro" ~ "Liter",
-      no_unid == "Mil quilowatt hora" ~ "Thousand kilowatt hour",
-      no_unid == "Quilate" ~ "Carat",
-      no_unid == "Duzia" ~ "Dozen",
-      no_unid == "Tonelada metrica liquida" ~ "Net metric ton",
-      no_unid == "Grama liquido" ~ "Net gram",
-      no_unid == "Bilhoes de unidades internacionais" ~ "Billion international units",
-      no_unid == "Quilograma bruto" ~ "Gross kilogram",
-      TRUE ~ NA_character_)
-  ) |>
-  tibble::as_tibble() |>
-  dplyr::rename(unit_description_pt = no_unid)
-usethis::use_data(unit_table, internal = TRUE, overwrite = TRUE)
-
-# Get Comex Stat's CUCI table - portuguese only
-cuci_table <- process_table("NCM_CUCI") |>
-  dplyr::select(
-    co_cuci_item, no_cuci_item, no_cuci_sub, no_cuci_grupo,
-    no_cuci_divisao, no_cuci_sec
-  ) |>
-  tibble::as_tibble()
-usethis::use_data(cuci_table, internal = TRUE, overwrite = TRUE)
