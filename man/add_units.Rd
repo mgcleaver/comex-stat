@@ -2,12 +2,12 @@
 % Please edit documentation in R/add_units.R
 \name{add_units}
 \alias{add_units}
-\title{Add Unit Descriptions to Comex Stat data}
+\title{Add statiscal unit descriptions to Comex Stat data}
 \usage{
 add_units(x, lang = c("en", "pt"), drop_key = TRUE)
 }
 \arguments{
-\item{x}{A data frame or tibble containing a column named \code{ncm}.}
+\item{x}{A tibble containing a column named \code{ncm}.}
 
 \item{lang}{A string indicating the desired language for the unit description.
 Must be \code{"en"} (English) or \code{"pt"} (Portuguese).
@@ -21,8 +21,10 @@ A tibble or data frame with the unit_description. In case drop_key =
 \code{FALSE}, then the unit_code will also be present.
 }
 \description{
-This helper function matches NCM codes with their corresponding unit codes
-and then appends the unit description in the specified language.
+This helper function matches NCM codes with their corresponding  statistical
+unit codes and then appends the unit description in the specified language.
+The function complements the understanding of the qty (quantity) variable
+of the database created with \code{create_cs_db}.
 }
 \details{
 The function uses external \code{ncm_table} and internal \code{unit_table}

@@ -1,12 +1,14 @@
-#' Add Unit Descriptions to Comex Stat data
+#' Add statiscal unit descriptions to Comex Stat data
 #'
-#' This helper function matches NCM codes with their corresponding unit codes
-#' and then appends the unit description in the specified language.
+#' This helper function matches NCM codes with their corresponding  statistical
+#' unit codes and then appends the unit description in the specified language.
+#' The function complements the understanding of the qty (quantity) variable
+#' of the database created with `create_cs_db`.
 #'
 #' The function uses external `ncm_table` and internal `unit_table`
 #' data stored in the package.
 #'
-#' @param x A data frame or tibble containing a column named `ncm`.
+#' @param x A tibble containing a column named `ncm`.
 #' @param lang A string indicating the desired language for the unit description.
 #'   Must be `"en"` (English) or `"pt"` (Portuguese).
 #'   Defaults to `"en"`.

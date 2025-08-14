@@ -1,4 +1,4 @@
-#' Add Country Name Based on Comex Stat's Country Code
+#' Add country name based on Comex Stat's country code
 #'
 #' A convenience wrapper that joins a country name to the Comex Stat database
 #' based on the `country_code` column.

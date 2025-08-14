@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_country_name.R
 \name{add_country_name}
 \alias{add_country_name}
-\title{Add Country Name Based on Comex Stat's Country Code}
+\title{Add country name based on Comex Stat's country code}
 \usage{
 add_country_name(x, lang = c("en", "pt", "es"), drop_key = TRUE)
 }
