@@ -159,7 +159,13 @@ rename_columns_if_present <- function(df) {
     "no_cgce_n1" = "bec_n1_desc_pt",
     "no_cgce_n1_ing" = "bec_n1_desc",
     "no_cgce_n1_esp" = "bec_n1_desc_es",
-    "co_unid" = "unit_code"
+    "co_unid" = "unit_code",
+    "co_cuci_item" = "cuci_basic_heading_code",
+    "no_cuci_item" = "cuci_basic_heading_desc_pt",
+    "no_cuci_sub" = "cuci_subgroup_desc_pt",
+    "no_cuci_grupo" = "cuci_group_desc_pt",
+    "no_cuci_divisao" = "cuci_division_desc_pt",
+    "no_cuci_sec" = "cuci_section_desc_pt"
     )
 
   rename_map <- name_map[names(name_map) %in% names(df)]

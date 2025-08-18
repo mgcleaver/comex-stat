@@ -16,8 +16,9 @@ usethis::use_data(country_table, internal = FALSE, overwrite = TRUE)
 
 # Get Comex Stat's NCM mapping table
 ncm_table <- process_table("NCM") |>
-  dplyr::select(ncm, unit_code, co_cuci_item, bec_n3_code, co_siit, isic_class_code,
-         ncm_description, ncm_description_pt, ncm_description_es) |>
+  dplyr::select(
+    ncm, unit_code, cuci_basic_heading_code, bec_n3_code, co_siit,
+    isic_class_code,ncm_description, ncm_description_pt, ncm_description_es) |>
   dplyr::distinct() |>
   dplyr::mutate(ncm = stringr::str_pad(ncm, 8, side = 'left', pad = '0')) |>
   tibble::as_tibble()

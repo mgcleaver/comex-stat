@@ -31,13 +31,16 @@ unit_table <- process_table("NCM_UNIDADE") |>
   ) |>
   dplyr::rename(unit_description_pt = no_unid) |>
   tibble::as_tibble()
-usethis::use_data(unit_table, internal = TRUE, overwrite = TRUE)
 
-# Get Comex Stat's CUCI table - portuguese only
+# Get Comex Stat's CUCI (STIC) table - portuguese only
 cuci_table <- process_table("NCM_CUCI") |>
   dplyr::select(
-    co_cuci_item, no_cuci_item, no_cuci_sub, no_cuci_grupo,
-    no_cuci_divisao, no_cuci_sec
+    cuci_basic_heading_code,
+    cuci_basic_heading_desc_pt,
+    cuci_subgroup_desc_pt,
+    cuci_group_desc_pt,
+    cuci_division_desc_pt,
+    cuci_section_desc_pt
   ) |>
   tibble::as_tibble()
 

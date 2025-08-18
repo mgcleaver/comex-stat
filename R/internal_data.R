@@ -16,18 +16,18 @@
 #' @docType data
 NULL
 
-#' Comex Stat's CUCI code and description table - only in portuguese
+#' Comex Stat's CUCI (STIC) code and description table - only in portuguese
 #'
 #' A table containing unit codes and descriptions
 #'
 #' @format A tibble with 2971 rows and 6 columns:
 #' \describe{
-#'   \item{no_cuci_item}{CUCI item code}
-#'   \item{no_cuci_item}{CUCI item description in Portuguese.}
-#'   \item{no_cuci_sub}{CUCI subgroup description in Portuguese.}
-#'   \item{no_cuci_grupo}{CUCI group description in Portuguese.}
-#'   \item{no_cuci_divisao}{CUCI division description in Portuguese.}
-#'   \item{no_cuci_sec}{CUCI section description in Portuguese.}
+#'   \item{cuci_basic_heading_code}{CUCI basic heading code}
+#'   \item{cuci_basic_heading_desc_pt}{CUCI basic heading description in Portuguese.}
+#'   \item{cuci_subgroup_desc_pt}{CUCI subgroup description in Portuguese.}
+#'   \item{cuci_group_desc_pt}{CUCI group description in Portuguese.}
+#'   \item{cuci_division_desc_pt}{CUCI division description in Portuguese.}
+#'   \item{cuci_section_desc_pt}{CUCI section description in Portuguese.}
 #' }
 #'
 #' @source \url{https://balanca.economia.gov.br/balanca/bd/tabelas/NCM_CUCI.csv}

@@ -47,7 +47,7 @@
 #' \describe{
 #'   \item{ncm}{NCM Product code}
 #'   \item{unit_code}{Unit code for NCM}
-#'   \item{co_cuci_item}{CUCI item code}
+#'   \item{cuci_basic_heading_code}{STIC basic heading code}
 #'   \item{bec_n3_code)}{Broad economic category code}
 #'   \item{co_siit}{SIIT code}
 #'   \item{isic_class_code}{ISIC class code}
